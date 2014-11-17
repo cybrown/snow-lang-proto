@@ -1,0 +1,25 @@
+{
+  "name": "parser",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "gulp": "^3.8.6",
+    "gulp-jison": "^1.0.0",
+    "gulp-mocha": "^0.5.1",
+    "gulp-rimraf": "^0.1.0",
+    "memory-stream": "0.0.3",
+    "run-sequence": "^0.3.6"
+  },
+  "devDependencies": {
+    "gulp-typescript": "^2.2.1"
+  }
+}
