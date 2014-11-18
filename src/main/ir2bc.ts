@@ -8,7 +8,12 @@ export enum Opcode {
     SUB,
     CONST,
     RET,
-    CALL
+    RETVOID,
+    CALL,
+    JP,
+    JPZ,
+    MUL,
+    LOAD_ARG
 }
 
 class DynamicBuffer {
@@ -115,8 +120,24 @@ export class Assembler {
         return this.op(Opcode.ADD);
     }
 
-    call (address: string) {
-        return this.op(Opcode.CALL).address(address);
+    sub () {
+        return this.op(Opcode.SUB);
+    }
+
+    mul () {
+        return this.op(Opcode.MUL);
+    }
+
+    jp (address: string) {
+        return this.op(Opcode.JP).address(address);
+    }
+
+    jpz (address: string) {
+        return this.op(Opcode.JPZ).address(address);
+    }
+
+    call (address: string, argc: number) {
+        return this.op(Opcode.CALL).address(address).i32(argc);
     }
 
     halt () {
@@ -125,6 +146,14 @@ export class Assembler {
 
     ret () {
         return this.op(Opcode.RET);
+    }
+
+    retvoid () {
+        return this.op(Opcode.RETVOID);
+    }
+
+    load_arg (num: number) {
+        return this.op(Opcode.LOAD_ARG).i32(num);
     }
 
     label (name: string): Assembler {
