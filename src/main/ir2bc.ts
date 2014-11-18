@@ -72,7 +72,6 @@ export class IrStreamWritter {
     }
 
     writeAddress (address: number, offset: number) {
-        offset = this.getCurrentOffset() || offset;
         var buffer = new Buffer(4);
         buffer.writeInt32BE(address, 0);
         this.buffer.write(buffer, offset);
@@ -86,6 +85,93 @@ export class IrStreamWritter {
 
     getCurrentOffset (): number {
         return this.buffer.getCurrentOffset();
+    }
+}
+
+export class Assembler {
+
+    private irStreamWritter = new IrStreamWritter();
+
+    op (opcode: string): Assembler;
+    op (opcode: Opcode): Assembler;
+    op (opcode: any): Assembler {
+        if (typeof opcode === 'string') {
+            this.irStreamWritter.writeOpcode(<Opcode> (<any>Opcode)[opcode]);
+        } else {
+            this.irStreamWritter.writeOpcode(<Opcode> opcode);
+        }
+        return this;
+    }
+
+    private const (): Assembler {
+        return this.op(Opcode.CONST);
+    }
+
+    const_i32 (value: number): Assembler {
+        return this.op(Opcode.CONST).i32(value);
+    }
+
+    add () {
+        return this.op(Opcode.ADD);
+    }
+
+    call (address: string) {
+        return this.op(Opcode.CALL).address(address);
+    }
+
+    halt () {
+        return this.op(Opcode.HALT);
+    }
+
+    ret () {
+        return this.op(Opcode.RET);
+    }
+
+    label (name: string): Assembler {
+        this.resolveLabel(name);
+        return this;
+    }
+
+    private i32 (value: number): Assembler {
+        this.irStreamWritter.writeInteger(value);
+        return this;
+    }
+
+    private address (value: string): Assembler {
+        this.writeAddress(value);
+        return this;
+    }
+
+    get (): Buffer {
+        return this.irStreamWritter.toBuffer();
+    }
+
+    private getCurrentAddress () {
+        return this.irStreamWritter.getCurrentOffset();
+    }
+
+    private labels: {[key: string]: number} = {};
+    private waitingForLabel: {[key: string]: number[]} = {};
+
+    private resolveLabel (id: string) {
+        var address = this.getCurrentAddress();
+        this.labels[id] = address;
+        if (this.waitingForLabel.hasOwnProperty(id)) {
+            this.waitingForLabel[id].forEach(offset => this.irStreamWritter.writeAddress(address, offset));
+        }
+    }
+
+    private writeAddress (id: string) {
+        if (this.labels.hasOwnProperty(String(id))) {
+            this.irStreamWritter.appendAddress(this.labels[id]);
+            delete this.waitingForLabel[id];
+        } else {
+            if (!this.waitingForLabel.hasOwnProperty(id)) {
+                this.waitingForLabel[id] = [];
+            }
+            this.waitingForLabel[id].push(this.irStreamWritter.getCurrentOffset());
+            this.irStreamWritter.appendAddress(0);
+        }
     }
 }
 
@@ -117,11 +203,11 @@ export class IrTranslator {
             this.irStreamWritter.appendAddress(this.labels[id]);
             delete this.waitingForLabel[id];
         } else {
-            this.irStreamWritter.appendAddress(0);
             if (!this.waitingForLabel.hasOwnProperty(String(id))) {
                 this.waitingForLabel[id] = [];
             }
             this.waitingForLabel[id].push(this.irStreamWritter.getCurrentOffset());
+            this.irStreamWritter.appendAddress(0);
         }
     }
 
