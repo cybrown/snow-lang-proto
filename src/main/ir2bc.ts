@@ -15,7 +15,10 @@ export enum Opcode {
     CALL,
     JP,
     JPZ,
-    LOAD_ARG32
+    LOAD_ARG32,
+    PUSH32_0,
+    STORE32,
+    LOAD_LOCAL32
 }
 
 class DynamicBuffer {
@@ -134,6 +137,14 @@ export class Assembler {
         return this.op(Opcode.MOD32);
     }
 
+    store32 (offset: number) {
+        return this.op(Opcode.STORE32).i32(offset);
+    }
+
+    load_local32 (offset: number) {
+        return this.op(Opcode.LOAD_LOCAL32).i32(offset);
+    }
+
     jp (address: string) {
         return this.op(Opcode.JP).address(address);
     }
@@ -156,6 +167,10 @@ export class Assembler {
 
     get ret () {
         return this.op(Opcode.RET);
+    }
+
+    get alloc32 () {
+        return this.op(Opcode.PUSH32_0);
     }
 
     load_arg32 (num: number) {

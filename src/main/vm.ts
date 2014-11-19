@@ -94,12 +94,35 @@ export class CPU {
             case ir2bc.Opcode.LOAD_ARG32:
                 this.runLoadArg32();
                 break;
+            case ir2bc.Opcode.PUSH32_0:
+                this.runPush32_0();
+                break;
+            case ir2bc.Opcode.STORE32:
+                this.runStore32();
+                break;
+            case ir2bc.Opcode.LOAD_LOCAL32:
+                this.runLoadLocal32();
+                break;
             default:
                 throw new Error('Unsupported bytecode: ' + opcode + ' (' + ir2bc.Opcode[opcode] + ')@' + (this.pc - 1));
         }
         if (this.debug) {
             console.log(this.stack.slice(0, this.sp + 1));
         }
+    }
+
+    runLoadLocal32 () {
+        var offset = this.readInt32();
+        this.push32(this.stack[this.fp + offset]);
+    }
+
+    runPush32_0 () {
+        this.push32(0);
+    }
+
+    runStore32 () {
+        var offset = this.readInt32();
+        this.stack[this.fp + offset] = this.pop32();
     }
 
     runConst32 () {
