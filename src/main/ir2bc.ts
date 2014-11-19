@@ -112,15 +112,15 @@ export class Assembler {
         return this.op(Opcode.CONST32).i32(value);
     }
 
-    add32 () {
+    get add32 () {
         return this.op(Opcode.ADD32);
     }
 
-    sub32 () {
+    get sub32 () {
         return this.op(Opcode.SUB32);
     }
 
-    mul32 () {
+    get mul32 () {
         return this.op(Opcode.MUL32);
     }
 
@@ -136,15 +136,15 @@ export class Assembler {
         return this.op(Opcode.CALL).address(address).i32(argc);
     }
 
-    halt () {
+    get halt () {
         return this.op(Opcode.HALT);
     }
 
-    ret32 () {
+    get ret32 () {
         return this.op(Opcode.RET32);
     }
 
-    ret () {
+    get ret () {
         return this.op(Opcode.RET);
     }
 
