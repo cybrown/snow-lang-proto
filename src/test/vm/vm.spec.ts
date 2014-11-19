@@ -13,36 +13,36 @@ describe('CPU', () => {
         assembler = new ir2bc.Assembler();
     });
 
-    it('add', () => {
+    it('add32', () => {
         var r = new vm.CPU();
         var bc = assembler
             .const_i32(1)
             .const_i32(2)
-            .add()
+            .add32()
             .get();
         r.run(bc);
         assert.equal(3, r.getResult());
     });
 
-    it('mul', () => {
+    it('mul32', () => {
         var r = new vm.CPU();
         var bc = assembler
             .const_i32(3)
             .const_i32(4)
-            .mul()
+            .mul32()
             .get();
         r.run(bc);
         assert.equal(12, r.getResult());
     });
 
-    it('sub', () => {
+    it('sub32', () => {
         var r = new vm.CPU();
         var bc = new Buffer(11);
-        bc.writeUInt8(ir2bc.Opcode.CONST, 0);
+        bc.writeUInt8(ir2bc.Opcode.CONST32, 0);
         bc.writeUInt32BE(13, 1);
-        bc.writeUInt8(ir2bc.Opcode.CONST, 5);
+        bc.writeUInt8(ir2bc.Opcode.CONST32, 5);
         bc.writeUInt32BE(7, 6);
-        bc.writeInt8(ir2bc.Opcode.SUB, 10);
+        bc.writeInt8(ir2bc.Opcode.SUB32, 10);
         r.run(bc);
         assert.equal(6, r.getResult());
     });
@@ -53,7 +53,7 @@ describe('CPU', () => {
             .halt()
             .label('myfunc')
             .const_i32(42)
-            .ret()
+            .ret32()
             .get();
         var cpu = new vm.CPU();
         cpu.run(bc);
@@ -67,11 +67,11 @@ describe('CPU', () => {
             .label('myfunc1')
             .call('myfunc2', 0)
             .const_i32(7)
-            .add()
-            .ret()
+            .add32()
+            .ret32()
             .label('myfunc2')
             .const_i32(13)
-            .ret()
+            .ret32()
             .get();
         var cpu = new vm.CPU();
         cpu.run(bc);
@@ -131,10 +131,10 @@ describe('CPU', () => {
             .call('func', 1)
             .halt()
             .label('func')
-            .load_arg(0)
+            .load_arg32(0)
             .const_i32(8)
-            .add()
-            .ret()
+            .add32()
+            .ret32()
             .get();
         var cpu = new vm.CPU();
         cpu.run(bc);
@@ -147,36 +147,36 @@ describe('CPU', () => {
             .call('fact', 1)
             .halt()
             .label('fact')
-                .load_arg(0)
+                .load_arg32(0)
                 .const_i32(1)
-            .sub()
+            .sub32()
             .jpz('isZero')
-                .load_arg(0)
-                        .load_arg(0)
+                .load_arg32(0)
+                        .load_arg32(0)
                         .const_i32(1)
-                    .sub()
+                    .sub32()
                 .call('fact', 1)
-            .mul()
-            .ret()
+            .mul32()
+            .ret32()
             .label('isZero')
             .const_i32(1)
-            .ret()
+            .ret32()
             .get();
         var cpu = new vm.CPU();
         cpu.run(bc);
         assert.equal(cpu.getResult(), 120);
     });
 
-    it ('retvoid', () => {
+    it ('ret', () => {
         var bc = assembler
             .const_i32(40)
             .const_i32(2)
             .call('func', 0)
-            .add()
+            .add32()
             .halt()
             .label('func')
             .const_i32(1)
-            .retvoid()
+            .ret()
             .get();
         var cpu = new vm.CPU();
         cpu.run(bc);

@@ -11,11 +11,11 @@ export class CPU {
     stack: number[] = new Array(100);
     bytecode: Buffer;
 
-    pop (): number {
+    pop32 (): number {
         return this.stack[this.sp--];
     }
 
-    push (value: number) {
+    push32 (value: number) {
         this.stack[++this.sp] = value;
     }
 
@@ -25,7 +25,7 @@ export class CPU {
         return value;
     }
 
-    readInt (): number {
+    readInt32 (): number {
         var value = this.bytecode.readInt32BE(this.pc);
         this.pc += 4;
         return value;
@@ -58,26 +58,26 @@ export class CPU {
             console.log(this.stack.slice(0, this.sp + 1));
         }
         switch (opcode) {
-            case ir2bc.Opcode.CONST:
-                this.runConst();
+            case ir2bc.Opcode.CONST32:
+                this.runConst32();
                 break;
-            case ir2bc.Opcode.ADD:
-                this.runAdd();
+            case ir2bc.Opcode.ADD32:
+                this.runAdd32();
                 break;
-            case ir2bc.Opcode.SUB:
-                this.runSub();
+            case ir2bc.Opcode.SUB32:
+                this.runSub32();
                 break;
-            case ir2bc.Opcode.MUL:
-                this.runMul();
+            case ir2bc.Opcode.MUL32:
+                this.runMul32();
                 break;
             case ir2bc.Opcode.CALL:
                 this.runCall();
                 break;
+            case ir2bc.Opcode.RET32:
+                this.runRet32();
+                break;
             case ir2bc.Opcode.RET:
                 this.runRet();
-                break;
-            case ir2bc.Opcode.RETVOID:
-                this.runRetvoid();
                 break;
             case ir2bc.Opcode.JP:
                 this.runJp();
@@ -85,8 +85,8 @@ export class CPU {
             case ir2bc.Opcode.JPZ:
                 this.runJpz();
                 break;
-            case ir2bc.Opcode.LOAD_ARG:
-                this.runLoadArg();
+            case ir2bc.Opcode.LOAD_ARG32:
+                this.runLoadArg32();
                 break;
             default:
                 throw new Error('Unsupported bytecode: ' + opcode + ' (' + ir2bc.Opcode[opcode] + ')@' + (this.pc - 1));
@@ -96,38 +96,38 @@ export class CPU {
         }
     }
 
-    runConst () {
-        var value = this.readInt();
-        this.push(value);
+    runConst32 () {
+        var value = this.readInt32();
+        this.push32(value);
     }
 
-    runAdd () {
-        var right = this.pop();
-        var left = this.pop();
+    runAdd32 () {
+        var right = this.pop32();
+        var left = this.pop32();
         var value = left + right;
-        this.push(value);
+        this.push32(value);
     }
 
-    runSub () {
-        var right = this.pop();
-        var left = this.pop();
+    runSub32 () {
+        var right = this.pop32();
+        var left = this.pop32();
         var value = left - right;
-        this.push(value);
+        this.push32(value);
     }
 
-    runMul () {
-        var right = this.pop();
-        var left = this.pop();
+    runMul32 () {
+        var right = this.pop32();
+        var left = this.pop32();
         var value = left * right;
-        this.push(value);
+        this.push32(value);
     }
 
     runCall () {
         var address = this.readAddress();
-        var argc = this.readInt();
-        this.push(this.fp);
-        this.push(this.pc);
-        this.push(argc);
+        var argc = this.readInt32();
+        this.push32(this.fp);
+        this.push32(this.pc);
+        this.push32(argc);
         if (this.debug) {
             console.log('Saving argc: %s', argc);
             console.log('Saving pc: %s', this.pc);
@@ -137,26 +137,26 @@ export class CPU {
         this.fp = this.sp;
     }
 
-    runRet () {
-        var result = this.pop();
+    runRet32 () {
+        var result = this.pop32();
         this.sp = this.fp;
-        var argc = this.pop();
-        this.pc = this.pop();
-        this.fp = this.pop();
+        var argc = this.pop32();
+        this.pc = this.pop32();
+        this.fp = this.pop32();
         this.sp = this.sp - argc;
         if (this.debug) {
             console.log('Restoring argc: %s', argc);
             console.log('Restoring pc: %s', this.pc);
             console.log('Restoring fp: %s', this.fp);
         }
-        this.push(result);
+        this.push32(result);
     }
 
-    runRetvoid () {
+    runRet () {
         this.sp = this.fp;
-        var argc = this.pop();
-        this.pc = this.pop();
-        this.fp = this.pop();
+        var argc = this.pop32();
+        this.pc = this.pop32();
+        this.fp = this.pop32();
         this.sp = this.sp - argc;
         if (this.debug) {
             console.log('Restoring argc: %s', argc);
@@ -171,13 +171,13 @@ export class CPU {
 
     runJpz () {
         var dest = this.readAddress();
-        if (this.pop() === 0) {
+        if (this.pop32() === 0) {
             this.pc = dest;
         }
     }
 
-    runLoadArg () {
-        var offset = this.readInt();
-        this.push(this.stack[this.fp - offset - 3]);
+    runLoadArg32 () {
+        var offset = this.readInt32();
+        this.push32(this.stack[this.fp - offset - 3]);
     }
 }

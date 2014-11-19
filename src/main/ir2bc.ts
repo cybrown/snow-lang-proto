@@ -4,16 +4,16 @@ import ir = require('./ir');
 export enum Opcode {
     NOP,
     HALT,
-    ADD,
-    SUB,
-    CONST,
+    CONST32,
+    ADD32,
+    SUB32,
+    MUL32,
+    RET32,
     RET,
-    RETVOID,
     CALL,
     JP,
     JPZ,
-    MUL,
-    LOAD_ARG
+    LOAD_ARG32
 }
 
 class DynamicBuffer {
@@ -64,15 +64,21 @@ export class IrStreamWritter {
         return this.buffer.toBuffer();
     }
 
-    writeInteger(value: number) {
+    appendInt32(value: number) {
         var buffer = new Buffer(IrStreamWritter.INTEGER_SIZE);
         buffer.writeInt32BE(value, 0);
         this.buffer.append(buffer);
     }
 
-    writeOpcode(opcode: Opcode) {
+    appendOpcode(opcode: Opcode) {
         var buffer = new Buffer(IrStreamWritter.OPCODE_SIZE);
         buffer.writeUInt8(opcode, 0);
+        this.buffer.append(buffer);
+    }
+
+    appendAddress (address: number) {
+        var buffer = new Buffer(4);
+        buffer.writeInt32BE(address, 0);
         this.buffer.append(buffer);
     }
 
@@ -80,12 +86,6 @@ export class IrStreamWritter {
         var buffer = new Buffer(4);
         buffer.writeInt32BE(address, 0);
         this.buffer.write(buffer, offset);
-    }
-
-    appendAddress (address: number) {
-        var buffer = new Buffer(4);
-        buffer.writeInt32BE(address, 0);
-        this.buffer.append(buffer);
     }
 
     getCurrentOffset (): number {
@@ -101,31 +101,27 @@ export class Assembler {
     op (opcode: Opcode): Assembler;
     op (opcode: any): Assembler {
         if (typeof opcode === 'string') {
-            this.irStreamWritter.writeOpcode(<Opcode> (<any>Opcode)[opcode]);
+            this.irStreamWritter.appendOpcode(<Opcode> (<any>Opcode)[opcode]);
         } else {
-            this.irStreamWritter.writeOpcode(<Opcode> opcode);
+            this.irStreamWritter.appendOpcode(<Opcode> opcode);
         }
         return this;
     }
 
-    private const (): Assembler {
-        return this.op(Opcode.CONST);
-    }
-
     const_i32 (value: number): Assembler {
-        return this.op(Opcode.CONST).i32(value);
+        return this.op(Opcode.CONST32).i32(value);
     }
 
-    add () {
-        return this.op(Opcode.ADD);
+    add32 () {
+        return this.op(Opcode.ADD32);
     }
 
-    sub () {
-        return this.op(Opcode.SUB);
+    sub32 () {
+        return this.op(Opcode.SUB32);
     }
 
-    mul () {
-        return this.op(Opcode.MUL);
+    mul32 () {
+        return this.op(Opcode.MUL32);
     }
 
     jp (address: string) {
@@ -144,16 +140,16 @@ export class Assembler {
         return this.op(Opcode.HALT);
     }
 
+    ret32 () {
+        return this.op(Opcode.RET32);
+    }
+
     ret () {
         return this.op(Opcode.RET);
     }
 
-    retvoid () {
-        return this.op(Opcode.RETVOID);
-    }
-
-    load_arg (num: number) {
-        return this.op(Opcode.LOAD_ARG).i32(num);
+    load_arg32 (num: number) {
+        return this.op(Opcode.LOAD_ARG32).i32(num);
     }
 
     label (name: string): Assembler {
@@ -162,7 +158,7 @@ export class Assembler {
     }
 
     private i32 (value: number): Assembler {
-        this.irStreamWritter.writeInteger(value);
+        this.irStreamWritter.appendInt32(value);
         return this;
     }
 
@@ -255,25 +251,25 @@ export class IrTranslator {
     }
 
     translateIntegerConstant (node: ir.IntegerConstant) {
-        this.irStreamWritter.writeOpcode(Opcode.CONST);
-        this.irStreamWritter.writeInteger(node.value);
+        this.irStreamWritter.appendOpcode(Opcode.CONST32);
+        this.irStreamWritter.appendInt32(node.value);
     }
 
     translateAdd (node: ir.Add) {
         this.translate(node.left);
         this.translate(node.right);
-        this.irStreamWritter.writeOpcode(Opcode.ADD);
+        this.irStreamWritter.appendOpcode(Opcode.ADD32);
     }
 
     translateSub (node: ir.Sub) {
         this.translate(node.left);
         this.translate(node.right);
-        this.irStreamWritter.writeOpcode(Opcode.SUB);
+        this.irStreamWritter.appendOpcode(Opcode.SUB32);
     }
 
     translateReturn (node: ir.Return) {
         this.translate(node.value);
-        this.irStreamWritter.writeOpcode(Opcode.RET);
+        this.irStreamWritter.appendOpcode(Opcode.RET32);
     }
 
     translateBasicBlock (node: ir.BasicBlock) {
@@ -289,6 +285,6 @@ export class IrTranslator {
     translateCall (node: ir.Call) {
         node.args.forEach(arg => this.translate(arg));
         this.writeAddress(node.func.id);
-        this.irStreamWritter.writeOpcode(Opcode.CALL);
+        this.irStreamWritter.appendOpcode(Opcode.CALL);
     }
 }
