@@ -8,43 +8,41 @@ import types = require('../../main/types');
 describe('CPU', () => {
 
     var assembler: ir2bc.Assembler;
+    var cpu: vm.CPU;
 
     beforeEach(() => {
         assembler = new ir2bc.Assembler();
+        cpu = new vm.CPU();
     });
 
     it('add32', () => {
-        var r = new vm.CPU();
         var bc = assembler
             .const_i32(1)
             .const_i32(2)
             .add32
             .get();
-        r.run(bc);
-        assert.equal(3, r.getResult());
+        cpu.run(bc);
+        assert.equal(3, cpu.getResult());
     });
 
     it('mul32', () => {
-        var r = new vm.CPU();
         var bc = assembler
             .const_i32(3)
             .const_i32(4)
             .mul32
             .get();
-        r.run(bc);
-        assert.equal(12, r.getResult());
+        cpu.run(bc);
+        assert.equal(12, cpu.getResult());
     });
 
     it('sub32', () => {
-        var r = new vm.CPU();
-        var bc = new Buffer(11);
-        bc.writeUInt8(ir2bc.Opcode.CONST32, 0);
-        bc.writeUInt32BE(13, 1);
-        bc.writeUInt8(ir2bc.Opcode.CONST32, 5);
-        bc.writeUInt32BE(7, 6);
-        bc.writeInt8(ir2bc.Opcode.SUB32, 10);
-        r.run(bc);
-        assert.equal(6, r.getResult());
+        var bc = assembler
+            .const_i32(13)
+            .const_i32(7)
+            .sub32
+            .get();
+        cpu.run(bc);
+        assert.equal(6, cpu.getResult());
     });
 
     it('div32', () => {
@@ -53,7 +51,6 @@ describe('CPU', () => {
             .const_i32(5)
             .div32
             .get();
-        var cpu = new vm.CPU();
         cpu.run(bc);
         assert.equal(2, cpu.getResult());
     });
@@ -64,7 +61,6 @@ describe('CPU', () => {
             .const_i32(5)
             .mod32
             .get();
-        var cpu = new vm.CPU();
         cpu.run(bc);
         assert.equal(2, cpu.getResult());
     });
@@ -77,7 +73,6 @@ describe('CPU', () => {
             .const_i32(42)
             .ret32
             .get();
-        var cpu = new vm.CPU();
         cpu.run(bc);
         assert.equal(42, cpu.getResult());
     });
@@ -95,7 +90,6 @@ describe('CPU', () => {
             .const_i32(13)
             .ret32
             .get();
-        var cpu = new vm.CPU();
         cpu.run(bc);
         assert.equal(20, cpu.getResult());
     });
@@ -110,7 +104,6 @@ describe('CPU', () => {
             .const_i32(2)
             .halt
             .get();
-        var cpu = new vm.CPU();
         cpu.run(bc);
         assert.equal(2, cpu.getResult());
     });
@@ -119,14 +112,12 @@ describe('CPU', () => {
         var bc = assembler
             .const_i32(1)
             .jpz('ok')
-            .label('nop')
             .const_i32(1)
             .halt
             .label('ok')
             .const_i32(2)
             .halt
             .get();
-        var cpu = new vm.CPU();
         cpu.run(bc);
         assert.equal(1, cpu.getResult());
     });
@@ -135,14 +126,12 @@ describe('CPU', () => {
         var bc = assembler
             .const_i32(0)
             .jpz('ok')
-            .label('nop')
             .const_i32(1)
             .halt
             .label('ok')
             .const_i32(2)
             .halt
             .get();
-        var cpu = new vm.CPU();
         cpu.run(bc);
         assert.equal(2, cpu.getResult());
     });
@@ -158,7 +147,6 @@ describe('CPU', () => {
             .add32
             .ret32
             .get();
-        var cpu = new vm.CPU();
         cpu.run(bc);
         assert.equal(50, cpu.getResult());
     });
@@ -184,7 +172,6 @@ describe('CPU', () => {
             .const_i32(1)
             .ret32
             .get();
-        var cpu = new vm.CPU();
         cpu.run(bc);
         assert.equal(cpu.getResult(), 120);
     });
@@ -200,7 +187,6 @@ describe('CPU', () => {
             .const_i32(1)
             .ret
             .get();
-        var cpu = new vm.CPU();
         cpu.run(bc);
         assert.equal(cpu.getResult(), 42);
     });
