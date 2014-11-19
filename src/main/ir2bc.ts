@@ -8,6 +8,8 @@ export enum Opcode {
     ADD32,
     SUB32,
     MUL32,
+    DIV32,
+    MOD32,
     RET32,
     RET,
     CALL,
@@ -122,6 +124,14 @@ export class Assembler {
 
     get mul32 () {
         return this.op(Opcode.MUL32);
+    }
+
+    get div32 () {
+        return this.op(Opcode.DIV32);
+    }
+
+    get mod32 () {
+        return this.op(Opcode.MOD32);
     }
 
     jp (address: string) {

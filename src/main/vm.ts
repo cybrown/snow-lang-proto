@@ -12,11 +12,11 @@ export class CPU {
     bytecode: Buffer;
 
     pop32 (): number {
-        return this.stack[this.sp--];
+        return this.stack[this.sp--]|0;
     }
 
     push32 (value: number) {
-        this.stack[++this.sp] = value;
+        this.stack[++this.sp] = value|0;
     }
 
     readOpcode (): number {
@@ -70,6 +70,12 @@ export class CPU {
             case ir2bc.Opcode.MUL32:
                 this.runMul32();
                 break;
+            case ir2bc.Opcode.DIV32:
+                this.runDiv32();
+                break;
+            case ir2bc.Opcode.MOD32:
+                this.runMod32();
+                break;
             case ir2bc.Opcode.CALL:
                 this.runCall();
                 break;
@@ -119,6 +125,20 @@ export class CPU {
         var right = this.pop32();
         var left = this.pop32();
         var value = left * right;
+        this.push32(value);
+    }
+
+    runDiv32 () {
+        var right = this.pop32();
+        var left = this.pop32();
+        var value = left / right;
+        this.push32(value);
+    }
+
+    runMod32 () {
+        var right = this.pop32();
+        var left = this.pop32();
+        var value = left % right;
         this.push32(value);
     }
 

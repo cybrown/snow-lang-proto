@@ -47,6 +47,28 @@ describe('CPU', () => {
         assert.equal(6, r.getResult());
     });
 
+    it('div32', () => {
+        var bc = assembler
+            .const_i32(12)
+            .const_i32(5)
+            .div32
+            .get();
+        var cpu = new vm.CPU();
+        cpu.run(bc);
+        assert.equal(2, cpu.getResult());
+    });
+
+    it('mod32', () => {
+        var bc = assembler
+            .const_i32(12)
+            .const_i32(5)
+            .mod32
+            .get();
+        var cpu = new vm.CPU();
+        cpu.run(bc);
+        assert.equal(2, cpu.getResult());
+    });
+
     it('call', () => {
         var bc = assembler
             .call('myfunc', 0)
