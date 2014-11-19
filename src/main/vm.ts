@@ -8,7 +8,7 @@ export class CPU {
 
     debug: boolean = false;
 
-    stack: number[] = new Array(100);
+    stack: number[] = [];
     bytecode: Buffer;
 
     pop32 (): number {
