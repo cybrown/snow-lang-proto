@@ -128,6 +128,9 @@ export class CPU {
             case ir2bc.Opcode.JPZ:
                 this.runJpz();
                 break;
+            case ir2bc.Opcode.JPNZ:
+                this.runJpnz();
+                break;
             case ir2bc.Opcode.LOAD_ARG32:
                 this.runLoadArg32();
                 break;
@@ -387,6 +390,13 @@ export class CPU {
     private runJpz () {
         var dest = this.readAddress();
         if (this.pop32() === 0) {
+            this.pc = dest;
+        }
+    }
+
+    private runJpnz () {
+        var dest = this.readAddress();
+        if (this.pop32() !== 0) {
             this.pc = dest;
         }
     }

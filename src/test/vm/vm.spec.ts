@@ -229,6 +229,34 @@ describe('CPU', () => {
         assert.equal(2, cpu.getResult());
     });
 
+    it('jpnz 1', () => {
+        var bc = assembler
+            .const_i32(1)
+            .jpnz('ok')
+            .const_i32(1)
+            .halt
+            .label('ok')
+            .const_i32(2)
+            .halt
+            .get();
+        cpu.run(bc);
+        assert.equal(2, cpu.getResult());
+    });
+
+    it('jpnz 2', () => {
+        var bc = assembler
+            .const_i32(0)
+            .jpnz('ok')
+            .const_i32(1)
+            .halt
+            .label('ok')
+            .const_i32(2)
+            .halt
+            .get();
+        cpu.run(bc);
+        assert.equal(1, cpu.getResult());
+    });
+
     it ('arg', () => {
         var bc = assembler
             .const_i32(42)

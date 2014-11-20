@@ -17,6 +17,7 @@ export enum Opcode {
     CALL,
     JP,
     JPZ,
+    JPNZ,
     LOAD_ARG32,
     PUSH32_0,
     STORE32,
@@ -190,6 +191,10 @@ export class Assembler {
 
     jpz (address: string) {
         return this.op(Opcode.JPZ).address(address);
+    }
+
+    jpnz (address: string) {
+        return this.op(Opcode.JPNZ).address(address);
     }
 
     call (argc: number) {
