@@ -168,9 +168,9 @@ export class CPU {
     runCall () {
         var address = this.readAddress();
         var argc = this.readInt32();
+        this.push32(argc);
         this.push32(this.fp);
         this.push32(this.pc);
-        this.push32(argc);
         if (this.debug) {
             console.log('Saving argc: %s', argc);
             console.log('Saving pc: %s', this.pc);
@@ -183,12 +183,10 @@ export class CPU {
     runRet32 () {
         var result = this.pop32();
         this.sp = this.fp;
-        var argc = this.pop32();
         this.pc = this.pop32();
         this.fp = this.pop32();
-        this.sp = this.sp - argc;
+        this.sp = this.sp - this.pop32() - 1;
         if (this.debug) {
-            console.log('Restoring argc: %s', argc);
             console.log('Restoring pc: %s', this.pc);
             console.log('Restoring fp: %s', this.fp);
         }
@@ -197,12 +195,10 @@ export class CPU {
 
     runRet () {
         this.sp = this.fp;
-        var argc = this.pop32();
         this.pc = this.pop32();
         this.fp = this.pop32();
-        this.sp = this.sp - argc;
+        this.sp = this.sp - this.pop32() - 1;
         if (this.debug) {
-            console.log('Restoring argc: %s', argc);
             console.log('Restoring pc: %s', this.pc);
             console.log('Restoring fp: %s', this.fp);
         }
