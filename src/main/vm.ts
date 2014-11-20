@@ -2,48 +2,58 @@ import ir2bc = require('./ir2bc');
 
 export class CPU {
 
-    pc: number = 0;
-    sp: number = -1;
-    fp: number = 0;
-
     debug: boolean = false;
 
-    stack: Buffer = new Buffer(2048);
-    bytecode: Buffer;
+    private pc: number = 0;
+    private sp: number = -1;
+    private fp: number = 0;
 
-    set32 (offset: number, value: number) {
+    private bytecode: Buffer;
+    private stack: Buffer = new Buffer(2048);
+
+    //region Helpers
+    private set32 (offset: number, value: number) {
         this.stack.writeInt32BE(value|0, offset * 4);
     }
 
-    get32 (offset: number) {
+    private get32 (offset: number) {
         return this.stack.readInt32BE(offset * 4);
     }
 
-    pop32 (): number {
+    private pop32 (): number {
         return this.get32(this.sp--);
     }
 
-    push32 (value: number) {
+    private push32 (value: number) {
         this.set32(++this.sp, value);
     }
 
-    readOpcode (): number {
+    private readOpcode (): number {
         var value = this.bytecode.readUInt8(this.pc);
         this.pc++;
         return value;
     }
 
-    readInt32 (): number {
+    private readInt32 (): number {
         var value = this.bytecode.readInt32BE(this.pc);
         this.pc += 4;
         return value;
     }
 
-    readAddress (): number {
+    private readAddress (): number {
         var value = this.bytecode.readInt32BE(this.pc);
         this.pc += 4;
         return value;
     }
+
+    private logStack() {
+        var offsets: number[] = [];
+        for (var i = 0; i <= this.sp; i++) {
+            offsets.push(i);
+        }
+        console.log(offsets.map(offset => this.get32(offset)));
+    }
+    //endregion
 
     getResult (): number {
         return this.get32(this.sp);
@@ -60,7 +70,8 @@ export class CPU {
         }
     }
 
-    runBytecode (opcode: ir2bc.Opcode) {
+    //region Opcodes implementations
+    private runBytecode (opcode: ir2bc.Opcode) {
         if (this.debug) {
             console.log('[%s] %s', this.pc - 1, ir2bc.Opcode[opcode]);
             this.logStack();
@@ -119,69 +130,61 @@ export class CPU {
         }
     }
 
-    private logStack() {
-        var offsets = [];
-        for (var i = 0; i <= this.sp; i++) {
-            offsets.push(i);
-        }
-        console.log(offsets.map(offset => this.get32(offset)));
-    }
-
-    runLoadLocal32 () {
+    private runLoadLocal32 () {
         var offset = this.readInt32();
         this.push32(this.get32(this.fp + offset));
     }
 
-    runPush32_0 () {
+    private runPush32_0 () {
         this.push32(0);
     }
 
-    runStore32 () {
+    private runStore32 () {
         var offset = this.readInt32();
         this.set32(this.fp + offset, this.pop32());
     }
 
-    runConst32 () {
+    private runConst32 () {
         var value = this.readInt32();
         this.push32(value);
     }
 
-    runAdd32 () {
+    private runAdd32 () {
         var right = this.pop32();
         var left = this.pop32();
         var value = left + right;
         this.push32(value);
     }
 
-    runSub32 () {
+    private runSub32 () {
         var right = this.pop32();
         var left = this.pop32();
         var value = left - right;
         this.push32(value);
     }
 
-    runMul32 () {
+    private runMul32 () {
         var right = this.pop32();
         var left = this.pop32();
         var value = left * right;
         this.push32(value);
     }
 
-    runDiv32 () {
+    private runDiv32 () {
         var right = this.pop32();
         var left = this.pop32();
         var value = left / right;
         this.push32(value);
     }
 
-    runMod32 () {
+    private runMod32 () {
         var right = this.pop32();
         var left = this.pop32();
         var value = left % right;
         this.push32(value);
     }
 
-    runCall () {
+    private runCall () {
         var address = this.readAddress();
         var argc = this.readInt32();
         this.push32(argc);
@@ -196,20 +199,13 @@ export class CPU {
         this.fp = this.sp;
     }
 
-    runRet32 () {
+    private runRet32 () {
         var result = this.pop32();
-        this.sp = this.fp;
-        this.pc = this.pop32();
-        this.fp = this.pop32();
-        this.sp = this.sp - this.pop32() - 1;
-        if (this.debug) {
-            console.log('Restoring pc: %s', this.pc);
-            console.log('Restoring fp: %s', this.fp);
-        }
+        this.runRet();
         this.push32(result);
     }
 
-    runRet () {
+    private runRet () {
         this.sp = this.fp;
         this.pc = this.pop32();
         this.fp = this.pop32();
@@ -220,19 +216,20 @@ export class CPU {
         }
     }
 
-    runJp () {
+    private runJp () {
         this.pc = this.readAddress();
     }
 
-    runJpz () {
+    private runJpz () {
         var dest = this.readAddress();
         if (this.pop32() === 0) {
             this.pc = dest;
         }
     }
 
-    runLoadArg32 () {
+    private runLoadArg32 () {
         var offset = this.readInt32();
         this.push32(this.get32(this.fp - offset - 3));
     }
+    //endregion
 }
