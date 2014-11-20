@@ -20,8 +20,16 @@ export class CPU {
         return this.stack.readInt32BE(offset * 4);
     }
 
+    private get32u (offset: number) {
+        return this.stack.readUInt32BE(offset * 4);
+    }
+
     private pop32 (): number {
         return this.get32(this.sp--);
+    }
+
+    private pop32u (): number {
+        return this.get32u(this.sp--);
     }
 
     private push32 (value: number) {
@@ -59,6 +67,10 @@ export class CPU {
         return this.get32(this.sp);
     }
 
+    getResulti32u (): number {
+        return this.get32u(this.sp);
+    }
+
     run (bc: Buffer) {
         this.bytecode = bc;
         while (this.pc < this.bytecode.length) {
@@ -92,8 +104,14 @@ export class CPU {
             case ir2bc.Opcode.DIV32:
                 this.runDiv32();
                 break;
+            case ir2bc.Opcode.DIV32U:
+                this.runDiv32u();
+                break;
             case ir2bc.Opcode.MOD32:
                 this.runMod32();
+                break;
+            case ir2bc.Opcode.MOD32U:
+                this.runMod32u();
                 break;
             case ir2bc.Opcode.CALL:
                 this.runCall();
@@ -121,6 +139,24 @@ export class CPU {
                 break;
             case ir2bc.Opcode.LOAD_LOCAL32:
                 this.runLoadLocal32();
+                break;
+            case ir2bc.Opcode.AND32:
+                this.runAnd32();
+                break;
+            case ir2bc.Opcode.OR32:
+                this.runOr32();
+                break;
+            case ir2bc.Opcode.XOR32:
+                this.runXor32();
+                break;
+            case ir2bc.Opcode.SHL32:
+                this.runShl32();
+                break;
+            case ir2bc.Opcode.SHR32:
+                this.runShr32();
+                break;
+            case ir2bc.Opcode.SHR32U:
+                this.runShr32u();
                 break;
             default:
                 throw new Error('Unsupported bytecode: ' + opcode + ' (' + ir2bc.Opcode[opcode] + ')@' + (this.pc - 1));
@@ -177,11 +213,61 @@ export class CPU {
         this.push32(value);
     }
 
+    private runDiv32u () {
+        var right = this.pop32u();
+        var left = this.pop32u();
+        var value = left / right;
+        this.push32(value);
+    }
+
     private runMod32 () {
         var right = this.pop32();
         var left = this.pop32();
         var value = left % right;
         this.push32(value);
+    }
+
+    private runMod32u () {
+        var right = this.pop32u();
+        var left = this.pop32u();
+        var value = left % right;
+        this.push32(value);
+    }
+
+    private runAnd32 () {
+        var right = this.pop32();
+        var left = this.pop32();
+        this.push32(left & right);
+    }
+
+    private runOr32 () {
+        var right = this.pop32();
+        var left = this.pop32();
+        this.push32(left | right);
+    }
+
+    private runXor32 () {
+        var right = this.pop32();
+        var left = this.pop32();
+        this.push32(left ^ right);
+    }
+
+    private runShl32 () {
+        var right = this.pop32();
+        var left = this.pop32();
+        this.push32(left << right);
+    }
+
+    private runShr32 () {
+        var right = this.pop32();
+        var left = this.pop32();
+        this.push32(left >> right);
+    }
+
+    private runShr32u () {
+        var right = this.pop32();
+        var left = this.pop32();
+        this.push32(left >>> right);
     }
 
     private runCall () {

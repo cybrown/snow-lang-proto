@@ -9,7 +9,9 @@ export enum Opcode {
     SUB32,
     MUL32,
     DIV32,
+    DIV32U,
     MOD32,
+    MOD32U,
     RET32,
     RET,
     CALL,
@@ -18,7 +20,13 @@ export enum Opcode {
     LOAD_ARG32,
     PUSH32_0,
     STORE32,
-    LOAD_LOCAL32
+    LOAD_LOCAL32,
+    AND32,
+    OR32,
+    XOR32,
+    SHL32,
+    SHR32,
+    SHR32U
 }
 
 class DynamicBuffer {
@@ -75,6 +83,12 @@ export class IrStreamWritter {
         this.buffer.append(buffer);
     }
 
+    appendUInt32(value: number) {
+        var buffer = new Buffer(IrStreamWritter.INTEGER_SIZE);
+        buffer.writeUInt32BE(value, 0);
+        this.buffer.append(buffer);
+    }
+
     appendOpcode(opcode: Opcode) {
         var buffer = new Buffer(IrStreamWritter.OPCODE_SIZE);
         buffer.writeUInt8(opcode, 0);
@@ -117,6 +131,10 @@ export class Assembler {
         return this.op(Opcode.CONST32).i32(value);
     }
 
+    const_u32 (value: number): Assembler {
+        return this.op(Opcode.CONST32).u32(value);
+    }
+
     get add32 () {
         return this.op(Opcode.ADD32);
     }
@@ -133,8 +151,16 @@ export class Assembler {
         return this.op(Opcode.DIV32);
     }
 
+    get div32u () {
+        return this.op(Opcode.DIV32U);
+    }
+
     get mod32 () {
         return this.op(Opcode.MOD32);
+    }
+
+    get mod32u () {
+        return this.op(Opcode.MOD32U);
     }
 
     store32 (offset: number) {
@@ -155,6 +181,30 @@ export class Assembler {
 
     call (address: string, argc: number) {
         return this.op(Opcode.CALL).address(address).i32(argc);
+    }
+
+    get and32 () {
+        return this.op(Opcode.AND32);
+    }
+
+    get or32 () {
+        return this.op(Opcode.OR32);
+    }
+
+    get xor32 () {
+        return this.op(Opcode.XOR32);
+    }
+
+    get shl32 () {
+        return this.op(Opcode.SHL32);
+    }
+
+    get shr32 () {
+        return this.op(Opcode.SHR32);
+    }
+
+    get shr32u () {
+        return this.op(Opcode.SHR32U);
     }
 
     get halt () {
@@ -184,6 +234,11 @@ export class Assembler {
 
     private i32 (value: number): Assembler {
         this.irStreamWritter.appendInt32(value);
+        return this;
+    }
+
+    private u32 (value: number): Assembler {
+        this.irStreamWritter.appendUInt32(value);
         return this;
     }
 

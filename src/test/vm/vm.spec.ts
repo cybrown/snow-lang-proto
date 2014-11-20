@@ -25,7 +25,7 @@ describe('CPU', () => {
         assert.equal(3, cpu.getResult());
     });
 
-    it('mul32', () => {
+    it('mul32 1', () => {
         var bc = assembler
             .const_i32(3)
             .const_i32(4)
@@ -33,6 +33,16 @@ describe('CPU', () => {
             .get();
         cpu.run(bc);
         assert.equal(12, cpu.getResult());
+    });
+
+    it('mul32 2', () => {
+        var bc = assembler
+            .const_i32(2000000000)
+            .const_i32(2)
+            .mul32
+            .get();
+        cpu.run(bc);
+        assert.equal(4000000000, cpu.getResulti32u());
     });
 
     it('sub32', () => {
@@ -55,6 +65,16 @@ describe('CPU', () => {
         assert.equal(2, cpu.getResult());
     });
 
+    it('div32u', () => {
+        var bc = assembler
+            .const_u32(2294967296)
+            .const_i32(2)
+            .div32u
+            .get();
+        cpu.run(bc);
+        assert.equal(1147483648, cpu.getResult());
+    });
+
     it('mod32', () => {
         var bc = assembler
             .const_i32(12)
@@ -63,6 +83,76 @@ describe('CPU', () => {
             .get();
         cpu.run(bc);
         assert.equal(2, cpu.getResult());
+    });
+
+    it('mod32u', () => {
+        var bc = assembler
+            .const_u32(2294967296)
+            .const_i32(3)
+            .mod32u
+            .get();
+        cpu.run(bc);
+        assert.equal(2, cpu.getResult());
+    });
+
+    it('and32', () => {
+        var bc = assembler
+            .const_i32(3)
+            .const_i32(6)
+            .and32
+            .get();
+        cpu.run(bc);
+        assert.equal(2, cpu.getResult());
+    });
+
+    it('or2', () => {
+        var bc = assembler
+            .const_i32(3)
+            .const_i32(6)
+            .or32
+            .get();
+        cpu.run(bc);
+        assert.equal(7, cpu.getResult());
+    });
+
+    it('xor32', () => {
+        var bc = assembler
+            .const_i32(3)
+            .const_i32(6)
+            .xor32
+            .get();
+        cpu.run(bc);
+        assert.equal(5, cpu.getResult());
+    });
+
+    it('shl32', () => {
+        var bc = assembler
+            .const_i32(2000000000)
+            .const_i32(1)
+            .shl32
+            .get();
+        cpu.run(bc);
+        assert.equal(-294967296, cpu.getResult());
+    });
+
+    it('shr32', () => {
+        var bc = assembler
+            .const_u32(4000000000)
+            .const_i32(1)
+            .shr32
+            .get();
+        cpu.run(bc);
+        assert.equal(-147483648, cpu.getResult());
+    });
+
+    it('shr32u', () => {
+        var bc = assembler
+            .const_u32(4000000000)
+            .const_i32(1)
+            .shr32u
+            .get();
+        cpu.run(bc);
+        assert.equal(2000000000, cpu.getResult());
     });
 
     it('call', () => {
