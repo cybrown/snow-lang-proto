@@ -127,6 +127,10 @@ export class Assembler {
         return this;
     }
 
+    const_p (value: string): Assembler {
+        return this.op(Opcode.CONST32).address(value);
+    }
+
     const_i32 (value: number): Assembler {
         return this.op(Opcode.CONST32).i32(value);
     }
@@ -179,8 +183,8 @@ export class Assembler {
         return this.op(Opcode.JPZ).address(address);
     }
 
-    call (address: string, argc: number) {
-        return this.op(Opcode.CALL).address(address).i32(argc);
+    call (argc: number) {
+        return this.op(Opcode.CALL).i32(argc);
     }
 
     get and32 () {

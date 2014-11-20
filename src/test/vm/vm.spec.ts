@@ -157,7 +157,8 @@ describe('CPU', () => {
 
     it('call', () => {
         var bc = assembler
-            .call('myfunc', 0)
+            .const_p('myfunc')
+            .call(0)
             .halt
             .label('myfunc')
             .const_i32(42)
@@ -169,10 +170,12 @@ describe('CPU', () => {
 
     it('call 2', () => {
         var bc = assembler
-            .call('myfunc1', 0)
+            .const_p('myfunc1')
+            .call(0)
             .halt
             .label('myfunc1')
-            .call('myfunc2', 0)
+            .const_p('myfunc2')
+            .call(0)
             .const_i32(7)
             .add32
             .ret32
@@ -229,7 +232,8 @@ describe('CPU', () => {
     it ('arg', () => {
         var bc = assembler
             .const_i32(42)
-            .call('func', 1)
+            .const_p('func')
+            .call(1)
             .halt
             .label('func')
             .load_arg32(0)
@@ -244,7 +248,8 @@ describe('CPU', () => {
     it ('fact', () => {
         var bc = assembler
             .const_i32(5)
-            .call('fact', 1)
+            .const_p('fact')
+            .call(1)
             .halt
             .label('fact')
                 .load_arg32(0)
@@ -255,7 +260,8 @@ describe('CPU', () => {
                         .load_arg32(0)
                         .const_i32(1)
                     .sub32
-                .call('fact', 1)
+                .const_p('fact')
+                .call(1)
             .mul32
             .ret32
             .label('isZero')
@@ -270,7 +276,8 @@ describe('CPU', () => {
         var bc = assembler
             .const_i32(40)
             .const_i32(2)
-            .call('func', 0)
+            .const_p('func')
+            .call(0)
             .add32
             .halt
             .label('func')

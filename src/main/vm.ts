@@ -271,7 +271,7 @@ export class CPU {
     }
 
     private runCall () {
-        var address = this.readAddress();
+        var address = this.pop32u();
         var argc = this.readInt32();
         this.push32(argc);
         this.push32(this.fp);
