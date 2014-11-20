@@ -330,4 +330,149 @@ describe('CPU', () => {
         cpu.run(bc);
         assert.equal(cpu.getResult(), 55);
     });
+
+    it ('eq32 1', () => {
+        var bc = assembler
+            .const_u32(10)
+            .const_u32(10)
+            .eq32
+            .get();
+        cpu.run(bc);
+        assert.equal(cpu.getResult(), 1);
+    });
+
+    it ('eq32 2', () => {
+        var bc = assembler
+            .const_u32(10)
+            .const_u32(11)
+            .eq32
+            .get();
+        cpu.run(bc);
+        assert.equal(cpu.getResult(), 0);
+    });
+
+    it ('ne32 1', () => {
+        var bc = assembler
+            .const_u32(10)
+            .const_u32(10)
+            .ne32
+            .get();
+        cpu.run(bc);
+        assert.equal(cpu.getResult(), 0);
+    });
+
+    it ('ne32 2', () => {
+        var bc = assembler
+            .const_u32(10)
+            .const_u32(11)
+            .ne32
+            .get();
+        cpu.run(bc);
+        assert.equal(cpu.getResult(), 1);
+    });
+
+    it ('gt32 1', () => {
+        var bc = assembler
+            .const_u32(10)
+            .const_u32(10)
+            .gt32
+            .get();
+        cpu.run(bc);
+        assert.equal(cpu.getResult(), 0);
+    });
+
+    it ('gt32 2', () => {
+        var bc = assembler
+            .const_u32(2500000001)
+            .const_u32(2000000000)
+            .gt32
+            .get();
+        cpu.run(bc);
+        assert.equal(cpu.getResult(), 0);
+    });
+
+    it ('gt32u', () => {
+        var bc = assembler
+            .const_u32(2500000001)
+            .const_u32(2000000000)
+            .gt32u
+            .get();
+        cpu.run(bc);
+        assert.equal(cpu.getResult(), 1);
+    });
+
+    it ('ge32 1', () => {
+        var bc = assembler
+            .const_u32(10)
+            .const_u32(10)
+            .ge32
+            .get();
+        cpu.run(bc);
+        assert.equal(cpu.getResult(), 1);
+    });
+
+    it ('ge32 2', () => {
+        var bc = assembler
+            .const_u32(2500000001)
+            .const_u32(2000000000)
+            .ge32
+            .get();
+        cpu.run(bc);
+        assert.equal(cpu.getResult(), 0);
+    });
+
+    it ('ge32u', () => {
+        var bc = assembler
+            .const_u32(2500000001)
+            .const_u32(2000000000)
+            .ge32u
+            .get();
+        cpu.run(bc);
+        assert.equal(cpu.getResult(), 1);
+    });
+
+    it ('not32 1', () => {
+        var bc = assembler
+            .const_i32(1)
+            .not32
+            .get();
+        cpu.run(bc);
+        assert.equal(cpu.getResult(), 0);
+    });
+
+    it ('not32 2', () => {
+        var bc = assembler
+            .const_i32(42)
+            .not32
+            .get();
+        cpu.run(bc);
+        assert.equal(cpu.getResult(), 0);
+    });
+
+    it ('not32 3', () => {
+        var bc = assembler
+            .const_i32(0)
+            .not32
+            .get();
+        cpu.run(bc);
+        assert.equal(cpu.getResult(), 1);
+    });
+
+    it ('bnot32', () => {
+        var bc = assembler
+            .const_i32(3)
+            .bnot32
+            .get();
+        cpu.run(bc);
+        assert.equal(cpu.getResult(), -4);
+    });
+
+    it ('neg32', () => {
+        var bc = assembler
+            .const_i32(5)
+            .neg32
+            .get();
+        cpu.run(bc);
+        assert.equal(cpu.getResult(), -5);
+    });
 });

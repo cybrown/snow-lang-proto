@@ -26,7 +26,16 @@ export enum Opcode {
     XOR32,
     SHL32,
     SHR32,
-    SHR32U
+    SHR32U,
+    EQ32,
+    NE32,
+    GT32,
+    GT32U,
+    GE32,
+    GE32U,
+    NOT32,
+    BNOT32,
+    NEG32
 }
 
 class DynamicBuffer {
@@ -209,6 +218,42 @@ export class Assembler {
 
     get shr32u () {
         return this.op(Opcode.SHR32U);
+    }
+
+    get eq32 () {
+        return this.op(Opcode.EQ32);
+    }
+
+    get ne32 () {
+        return this.op(Opcode.NE32);
+    }
+
+    get gt32 () {
+        return this.op(Opcode.GT32);
+    }
+
+    get gt32u () {
+        return this.op(Opcode.GT32U);
+    }
+
+    get ge32 () {
+        return this.op(Opcode.GE32);
+    }
+
+    get ge32u () {
+        return this.op(Opcode.GE32U);
+    }
+
+    get not32 () {
+        return this.op(Opcode.NOT32);
+    }
+
+    get bnot32 () {
+        return this.op(Opcode.BNOT32);
+    }
+
+    get neg32 () {
+        return this.op(Opcode.NEG32);
     }
 
     get halt () {

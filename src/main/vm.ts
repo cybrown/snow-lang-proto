@@ -158,6 +158,33 @@ export class CPU {
             case ir2bc.Opcode.SHR32U:
                 this.runShr32u();
                 break;
+            case ir2bc.Opcode.EQ32:
+                this.runEq32();
+                break;
+            case ir2bc.Opcode.NE32:
+                this.runNe32();
+                break;
+            case ir2bc.Opcode.GT32:
+                this.runGt32();
+                break;
+            case ir2bc.Opcode.GT32U:
+                this.runGt32u();
+                break;
+            case ir2bc.Opcode.GE32:
+                this.runGe32();
+                break;
+            case ir2bc.Opcode.GE32U:
+                this.runGe32u();
+                break;
+            case ir2bc.Opcode.NOT32:
+                this.runNot32();
+                break;
+            case ir2bc.Opcode.BNOT32:
+                this.runBnot32();
+                break;
+            case ir2bc.Opcode.NEG32:
+                this.runNeg32();
+                break;
             default:
                 throw new Error('Unsupported bytecode: ' + opcode + ' (' + ir2bc.Opcode[opcode] + ')@' + (this.pc - 1));
         }
@@ -268,6 +295,57 @@ export class CPU {
         var right = this.pop32();
         var left = this.pop32();
         this.push32(left >>> right);
+    }
+
+    private runEq32 () {
+        var right = this.pop32();
+        var left = this.pop32();
+        this.push32(left === right ? 1 : 0);
+    }
+
+    private runNe32 () {
+        var right = this.pop32();
+        var left = this.pop32();
+        this.push32(left !== right ? 1 : 0);
+    }
+
+    private runGt32 () {
+        var right = this.pop32();
+        var left = this.pop32();
+        this.push32(left > right ? 1 : 0);
+    }
+
+    private runGt32u () {
+        var right = this.pop32u();
+        var left = this.pop32u();
+        this.push32(left > right ? 1 : 0);
+    }
+
+    private runGe32 () {
+        var right = this.pop32();
+        var left = this.pop32();
+        this.push32(left >= right ? 1 : 0);
+    }
+
+    private runGe32u () {
+        var right = this.pop32u();
+        var left = this.pop32u();
+        this.push32(left >= right ? 1 : 0);
+    }
+
+    private runNot32 () {
+        var operand = this.pop32u();
+        this.push32(operand === 0 ? 1 : 0);
+    }
+
+    private runBnot32 () {
+        var operand = this.pop32u();
+        this.push32(~operand);
+    }
+
+    private runNeg32 () {
+        var operand = this.pop32u();
+        this.push32(-operand);
     }
 
     private runCall () {
