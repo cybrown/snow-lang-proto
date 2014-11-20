@@ -282,8 +282,8 @@ describe('CPU', () => {
             .label('fact')
                 .load_arg32(0)
                 .const_i32(1)
-            .sub32
-            .jpz('isZero')
+            .eq32
+            .jpnz('stop')
                 .load_arg32(0)
                         .load_arg32(0)
                         .const_i32(1)
@@ -292,7 +292,7 @@ describe('CPU', () => {
                 .call(1)
             .mul32
             .ret32
-            .label('isZero')
+            .label('stop')
             .const_i32(1)
             .ret32
             .get();
@@ -340,8 +340,8 @@ describe('CPU', () => {
             .label('begin')
                     .load_local32(1)
                     .const_i32(11)
-                .sub32
-                .jpz('end')
+                .ge32
+                .jpnz('end')
                     .load_local32(0)
                     .load_local32(1)
                 .add32
