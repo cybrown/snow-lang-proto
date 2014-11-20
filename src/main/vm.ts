@@ -8,15 +8,23 @@ export class CPU {
 
     debug: boolean = false;
 
-    stack: number[] = [];
+    stack: Buffer = new Buffer(2048);
     bytecode: Buffer;
 
+    set32 (offset: number, value: number) {
+        this.stack.writeInt32BE(value|0, offset * 4);
+    }
+
+    get32 (offset: number) {
+        return this.stack.readInt32BE(offset * 4);
+    }
+
     pop32 (): number {
-        return this.stack[this.sp--]|0;
+        return this.get32(this.sp--);
     }
 
     push32 (value: number) {
-        this.stack[++this.sp] = value|0;
+        this.set32(++this.sp, value);
     }
 
     readOpcode (): number {
@@ -38,7 +46,7 @@ export class CPU {
     }
 
     getResult (): number {
-        return this.stack[this.sp];
+        return this.get32(this.sp);
     }
 
     run (bc: Buffer) {
@@ -55,7 +63,7 @@ export class CPU {
     runBytecode (opcode: ir2bc.Opcode) {
         if (this.debug) {
             console.log('[%s] %s', this.pc - 1, ir2bc.Opcode[opcode]);
-            console.log(this.stack.slice(0, this.sp + 1));
+            this.logStack();
         }
         switch (opcode) {
             case ir2bc.Opcode.CONST32:
@@ -107,13 +115,21 @@ export class CPU {
                 throw new Error('Unsupported bytecode: ' + opcode + ' (' + ir2bc.Opcode[opcode] + ')@' + (this.pc - 1));
         }
         if (this.debug) {
-            console.log(this.stack.slice(0, this.sp + 1));
+            this.logStack();
         }
+    }
+
+    private logStack() {
+        var offsets = [];
+        for (var i = 0; i <= this.sp; i++) {
+            offsets.push(i);
+        }
+        console.log(offsets.map(offset => this.get32(offset)));
     }
 
     runLoadLocal32 () {
         var offset = this.readInt32();
-        this.push32(this.stack[this.fp + offset]);
+        this.push32(this.get32(this.fp + offset));
     }
 
     runPush32_0 () {
@@ -122,7 +138,7 @@ export class CPU {
 
     runStore32 () {
         var offset = this.readInt32();
-        this.stack[this.fp + offset] = this.pop32();
+        this.set32(this.fp + offset, this.pop32());
     }
 
     runConst32 () {
@@ -217,6 +233,6 @@ export class CPU {
 
     runLoadArg32 () {
         var offset = this.readInt32();
-        this.push32(this.stack[this.fp - offset - 3]);
+        this.push32(this.get32(this.fp - offset - 3));
     }
 }
