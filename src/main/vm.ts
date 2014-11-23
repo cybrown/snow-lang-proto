@@ -130,6 +130,15 @@ export class CPU {
             case ir2bc.Opcode.JPNZ:
                 this.runJpnz();
                 break;
+            case ir2bc.Opcode.JR:
+                this.runJr();
+                break;
+            case ir2bc.Opcode.JRZ:
+                this.runJrz();
+                break;
+            case ir2bc.Opcode.JRNZ:
+                this.runJrnz();
+                break;
             case ir2bc.Opcode.LOAD_ARG32:
                 this.runLoadArg32();
                 break;
@@ -396,16 +405,17 @@ export class CPU {
     }
 
     private runJp () {
-        this.pc = this.readAddress();
+        var address = this.readAddress();
         if (this.debug) {
-            console.log('Relative address = %s', address);
+            console.log('Absolute address = %s', address);
         }
+        this.pc = address;
     }
 
     private runJpz () {
         var dest = this.readAddress();
         if (this.debug) {
-            console.log('Relative address = %s', dest);
+            console.log('Absolute address = %s', dest);
         }
         if (this.pop32() === 0) {
             this.pc = dest;
@@ -415,10 +425,38 @@ export class CPU {
     private runJpnz () {
         var dest = this.readAddress();
         if (this.debug) {
-            console.log('Relative address = %s', dest);
+            console.log('Absolute address = %s', dest);
         }
         if (this.pop32() !== 0) {
             this.pc = dest;
+        }
+    }
+
+    private runJr () {
+        var address = this.readAddress();
+        if (this.debug) {
+            console.log('Relative address = %s', address);
+        }
+        this.pc += address - 4;
+    }
+
+    private runJrz () {
+        var dest = this.readAddress();
+        if (this.debug) {
+            console.log('Relative address = %s', dest);
+        }
+        if (this.pop32() === 0) {
+            this.pc += dest - 4;
+        }
+    }
+
+    private runJrnz () {
+        var dest = this.readAddress();
+        if (this.debug) {
+            console.log('Relative address = %s', dest);
+        }
+        if (this.pop32() !== 0) {
+            this.pc += dest - 4;
         }
     }
 

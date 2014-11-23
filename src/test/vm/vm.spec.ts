@@ -257,6 +257,76 @@ describe('CPU', () => {
         assert.equal(1, cpu.getResult());
     });
 
+    it('jr', () => {
+        var bc = assembler
+            .jr('ok')
+            .label('nop')
+            .const_i32(1)
+            .halt
+            .label('ok')
+            .const_i32(2)
+            .halt
+            .get();
+        cpu.run(bc);
+        assert.equal(2, cpu.getResult());
+    });
+
+    it('jrz 1', () => {
+        var bc = assembler
+            .const_i32(1)
+            .jrz('ok')
+            .const_i32(1)
+            .halt
+            .label('ok')
+            .const_i32(2)
+            .halt
+            .get();
+        cpu.run(bc);
+        assert.equal(1, cpu.getResult());
+    });
+
+    it('jrz 2', () => {
+        var bc = assembler
+            .const_i32(0)
+            .jrz('ok')
+            .const_i32(1)
+            .halt
+            .label('ok')
+            .const_i32(2)
+            .halt
+            .get();
+        cpu.run(bc);
+        assert.equal(2, cpu.getResult());
+    });
+
+    it('jrnz 1', () => {
+        var bc = assembler
+            .const_i32(1)
+            .jrnz('ok')
+            .const_i32(1)
+            .halt
+            .label('ok')
+            .const_i32(2)
+            .halt
+            .get();
+        cpu.run(bc);
+        assert.equal(2, cpu.getResult());
+    });
+
+    it('jrnz 2', () => {
+        var bc = assembler
+            .const_i32(0)
+            .jrnz('ok')
+            .const_i32(1)
+            .halt
+            .label('ok')
+            .const_i32(2)
+            .halt
+            .get();
+        cpu.run(bc);
+        assert.equal(1, cpu.getResult());
+    });
+
     it ('arg', () => {
         var bc = assembler
             .const_i32(42)
@@ -329,7 +399,37 @@ describe('CPU', () => {
         assert.equal(cpu.getResult(), 42);
     });
 
-    it ('sum', () => {
+    it ('sum with absolute jumps', () => {
+        var bc = assembler
+            .alloc32
+            .alloc32
+            .const_i32(0)
+            .store32(0)
+            .const_i32(0)
+            .store32(1)
+            .label('begin')
+                    .load_local32(1)
+                    .const_i32(11)
+                .ge32
+                .jpnz('end')
+                    .load_local32(0)
+                    .load_local32(1)
+                .add32
+                .store32(0)
+                    .load_local32(1)
+                    .const_i32(1)
+                .add32
+                .store32(1)
+                .jp('begin')
+            .label('end')
+                .load_local32(0)
+                .halt
+            .get();
+        cpu.run(bc);
+        assert.equal(cpu.getResult(), 55);
+    });
+
+    it ('sum with relative jumps', () => {
         var bc = assembler
             .alloc32
             .alloc32
