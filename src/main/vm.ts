@@ -86,7 +86,6 @@ export class CPU {
     private runBytecode (opcode: ir2bc.Opcode) {
         if (this.debug) {
             console.log('[%s] %s', this.pc - 1, ir2bc.Opcode[opcode]);
-            this.logStack();
         }
         switch (opcode) {
             case ir2bc.Opcode.CONST32:
@@ -198,6 +197,9 @@ export class CPU {
 
     private runLoadLocal32 () {
         var offset = this.readInt32();
+        if (this.debug) {
+            console.log('Offset = %s', offset);
+        }
         this.push32(this.get32(this.fp + offset));
     }
 
@@ -207,11 +209,17 @@ export class CPU {
 
     private runStore32 () {
         var offset = this.readInt32();
+        if (this.debug) {
+            console.log('Offset = %s', offset);
+        }
         this.set32(this.fp + offset, this.pop32());
     }
 
     private runConst32 () {
         var value = this.readInt32();
+        if (this.debug) {
+            console.log('Value = %s', value);
+        }
         this.push32(value);
     }
 
@@ -354,6 +362,10 @@ export class CPU {
     private runCall () {
         var address = this.pop32u();
         var argc = this.readInt32();
+        if (this.debug) {
+            console.log('Address = %s', address);
+            console.log('Argc = %s', argc);
+        }
         this.push32(argc);
         this.push32(this.fp);
         this.push32(this.pc);
@@ -385,10 +397,16 @@ export class CPU {
 
     private runJp () {
         this.pc = this.readAddress();
+        if (this.debug) {
+            console.log('Relative address = %s', address);
+        }
     }
 
     private runJpz () {
         var dest = this.readAddress();
+        if (this.debug) {
+            console.log('Relative address = %s', dest);
+        }
         if (this.pop32() === 0) {
             this.pc = dest;
         }
@@ -396,6 +414,9 @@ export class CPU {
 
     private runJpnz () {
         var dest = this.readAddress();
+        if (this.debug) {
+            console.log('Relative address = %s', dest);
+        }
         if (this.pop32() !== 0) {
             this.pc = dest;
         }
@@ -403,6 +424,9 @@ export class CPU {
 
     private runLoadArg32 () {
         var offset = this.readInt32();
+        if (this.debug) {
+            console.log('Offset = %s', offset);
+        }
         this.push32(this.get32(this.fp - offset - 3));
     }
     //endregion
