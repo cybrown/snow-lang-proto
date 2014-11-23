@@ -7,11 +7,11 @@ import types = require('../../main/types');
 
 describe('CPU', () => {
 
-    var assembler: ir2bc.Assembler;
+    var assembler: ir2bc.AssemblerHelper;
     var cpu: vm.CPU;
 
     beforeEach(() => {
-        assembler = new ir2bc.Assembler();
+        assembler = new ir2bc.AssemblerHelper();
         cpu = new vm.CPU();
     });
 

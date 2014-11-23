@@ -129,197 +129,6 @@ export class Assembler {
 
     private irStreamWritter = new IrStreamWritter();
 
-    op (opcode: string): Assembler;
-    op (opcode: Opcode): Assembler;
-    op (opcode: any): Assembler {
-        if (typeof opcode === 'string') {
-            this.irStreamWritter.appendOpcode(<Opcode> (<any>Opcode)[opcode]);
-        } else {
-            this.irStreamWritter.appendOpcode(<Opcode> opcode);
-        }
-        return this;
-    }
-
-    const_p (value: string): Assembler {
-        return this.op(Opcode.CONST32).address(value);
-    }
-
-    const_i32 (value: number): Assembler {
-        return this.op(Opcode.CONST32).i32(value);
-    }
-
-    const_u32 (value: number): Assembler {
-        return this.op(Opcode.CONST32).u32(value);
-    }
-
-    get add32 () {
-        return this.op(Opcode.ADD32);
-    }
-
-    get sub32 () {
-        return this.op(Opcode.SUB32);
-    }
-
-    get mul32 () {
-        return this.op(Opcode.MUL32);
-    }
-
-    get div32 () {
-        return this.op(Opcode.DIV32);
-    }
-
-    get div32u () {
-        return this.op(Opcode.DIV32U);
-    }
-
-    get mod32 () {
-        return this.op(Opcode.MOD32);
-    }
-
-    get mod32u () {
-        return this.op(Opcode.MOD32U);
-    }
-
-    store32 (offset: number) {
-        return this.op(Opcode.STORE32).i32(offset);
-    }
-
-    load_local32 (offset: number) {
-        return this.op(Opcode.LOAD_LOCAL32).i32(offset);
-    }
-
-    jp (address: string) {
-        return this.op(Opcode.JP).address(address);
-    }
-
-    jpz (address: string) {
-        return this.op(Opcode.JPZ).address(address);
-    }
-
-    jpnz (address: string) {
-        return this.op(Opcode.JPNZ).address(address);
-    }
-
-    jr (address: string) {
-        return this.op(Opcode.JR).address(address, true);
-    }
-
-    jrz (address: string) {
-        return this.op(Opcode.JRZ).address(address, true);
-    }
-
-    jrnz (address: string) {
-        return this.op(Opcode.JRNZ).address(address, true);
-    }
-
-    call (argc: number) {
-        return this.op(Opcode.CALL).i32(argc);
-    }
-
-    get and32 () {
-        return this.op(Opcode.AND32);
-    }
-
-    get or32 () {
-        return this.op(Opcode.OR32);
-    }
-
-    get xor32 () {
-        return this.op(Opcode.XOR32);
-    }
-
-    get shl32 () {
-        return this.op(Opcode.SHL32);
-    }
-
-    get shr32 () {
-        return this.op(Opcode.SHR32);
-    }
-
-    get shr32u () {
-        return this.op(Opcode.SHR32U);
-    }
-
-    get eq32 () {
-        return this.op(Opcode.EQ32);
-    }
-
-    get ne32 () {
-        return this.op(Opcode.NE32);
-    }
-
-    get gt32 () {
-        return this.op(Opcode.GT32);
-    }
-
-    get gt32u () {
-        return this.op(Opcode.GT32U);
-    }
-
-    get ge32 () {
-        return this.op(Opcode.GE32);
-    }
-
-    get ge32u () {
-        return this.op(Opcode.GE32U);
-    }
-
-    get not32 () {
-        return this.op(Opcode.NOT32);
-    }
-
-    get bnot32 () {
-        return this.op(Opcode.BNOT32);
-    }
-
-    get neg32 () {
-        return this.op(Opcode.NEG32);
-    }
-
-    get halt () {
-        return this.op(Opcode.HALT);
-    }
-
-    get ret32 () {
-        return this.op(Opcode.RET32);
-    }
-
-    get ret () {
-        return this.op(Opcode.RET);
-    }
-
-    get alloc32 () {
-        return this.op(Opcode.PUSH32_0);
-    }
-
-    load_arg32 (num: number) {
-        return this.op(Opcode.LOAD_ARG32).i32(num);
-    }
-
-    label (name: string): Assembler {
-        this.resolveLabel(name);
-        return this;
-    }
-
-    private i32 (value: number): Assembler {
-        this.irStreamWritter.appendInt32(value);
-        return this;
-    }
-
-    private u32 (value: number): Assembler {
-        this.irStreamWritter.appendUInt32(value);
-        return this;
-    }
-
-    private address (value: string, isRelativeAddress: boolean = false): Assembler {
-        this.writeAddress(value, isRelativeAddress);
-        return this;
-    }
-
-    get (): Buffer {
-        return this.irStreamWritter.toBuffer();
-    }
-
     private getCurrentAddress () {
         return this.irStreamWritter.getCurrentOffset();
     }
@@ -327,17 +136,6 @@ export class Assembler {
     private labels: {[key: string]: number} = {};
     private waitingForLabel: {[key: string]: number[]} = {};
     private waitingForRelativeLabel: {[key: string]: number[]} = {};
-
-    private resolveLabel (id: string) {
-        var address = this.getCurrentAddress();
-        this.labels[id] = address;
-        if (this.waitingForLabel.hasOwnProperty(id)) {
-            this.waitingForLabel[id].forEach(offset => this.irStreamWritter.writeAddress(address, offset));
-        }
-        if (this.waitingForRelativeLabel.hasOwnProperty(id)) {
-            this.waitingForRelativeLabel[id].forEach(offset => this.irStreamWritter.writeAddress(address - offset, offset));
-        }
-    }
 
     private writeAddress (id: string, isRelativeAddress: boolean = false) {
         var obj = isRelativeAddress ? this.waitingForRelativeLabel : this.waitingForLabel;
@@ -355,6 +153,256 @@ export class Assembler {
             obj[id].push(this.irStreamWritter.getCurrentOffset());
             this.irStreamWritter.appendAddress(0);
         }
+    }
+
+    op (opcode: string): Assembler;
+    op (opcode: Opcode): Assembler;
+    op (opcode: any): Assembler {
+        if (typeof opcode === 'string') {
+            this.irStreamWritter.appendOpcode(<Opcode> (<any>Opcode)[opcode]);
+        } else {
+            this.irStreamWritter.appendOpcode(<Opcode> opcode);
+        }
+        return this;
+    }
+
+    resolveLabel (id: string) {
+        var address = this.getCurrentAddress();
+        this.labels[id] = address;
+        if (this.waitingForLabel.hasOwnProperty(id)) {
+            this.waitingForLabel[id].forEach(offset => this.irStreamWritter.writeAddress(address, offset));
+        }
+        if (this.waitingForRelativeLabel.hasOwnProperty(id)) {
+            this.waitingForRelativeLabel[id].forEach(offset => this.irStreamWritter.writeAddress(address - offset, offset));
+        }
+    }
+
+    i32 (value: number): Assembler {
+        this.irStreamWritter.appendInt32(value);
+        return this;
+    }
+
+    u32 (value: number): Assembler {
+        this.irStreamWritter.appendUInt32(value);
+        return this;
+    }
+
+    address (value: string, isRelativeAddress: boolean = false): Assembler {
+        this.writeAddress(value, isRelativeAddress);
+        return this;
+    }
+
+    getBuffer (): Buffer {
+        return this.irStreamWritter.toBuffer();
+    }
+}
+
+export class AssemblerHelper {
+
+    private assembler = new Assembler();
+
+    const_p (value: string): AssemblerHelper {
+        this.assembler.op(Opcode.CONST32).address(value);
+        return this;
+    }
+
+    const_i32 (value: number): AssemblerHelper {
+        this.assembler.op(Opcode.CONST32).i32(value);
+        return this;
+    }
+
+    const_u32 (value: number): AssemblerHelper {
+        this.assembler.op(Opcode.CONST32).u32(value);
+        return this;
+    }
+
+    get add32 (): AssemblerHelper {
+        this.assembler.op(Opcode.ADD32);
+        return this;
+    }
+
+    get sub32 (): AssemblerHelper {
+        this.assembler.op(Opcode.SUB32);
+        return this;
+    }
+
+    get mul32 (): AssemblerHelper {
+        this.assembler.op(Opcode.MUL32);
+        return this;
+    }
+
+    get div32 (): AssemblerHelper {
+        this.assembler.op(Opcode.DIV32);
+        return this;
+    }
+
+    get div32u (): AssemblerHelper {
+        this.assembler.op(Opcode.DIV32U);
+        return this;
+    }
+
+    get mod32 (): AssemblerHelper {
+        this.assembler.op(Opcode.MOD32);
+        return this;
+    }
+
+    get mod32u (): AssemblerHelper {
+        this.assembler.op(Opcode.MOD32U);
+        return this;
+    }
+
+    store32 (offset: number): AssemblerHelper {
+        this.assembler.op(Opcode.STORE32).i32(offset);
+        return this;
+    }
+
+    load_local32 (offset: number): AssemblerHelper {
+        this.assembler.op(Opcode.LOAD_LOCAL32).i32(offset);
+        return this;
+    }
+
+    jp (address: string): AssemblerHelper {
+        this.assembler.op(Opcode.JP).address(address);
+        return this;
+    }
+
+    jpz (address: string): AssemblerHelper {
+        this.assembler.op(Opcode.JPZ).address(address);
+        return this;
+    }
+
+    jpnz (address: string): AssemblerHelper {
+        this.assembler.op(Opcode.JPNZ).address(address);
+        return this;
+    }
+
+    jr (address: string): AssemblerHelper {
+        this.assembler.op(Opcode.JR).address(address, true);
+        return this;
+    }
+
+    jrz (address: string): AssemblerHelper {
+        this.assembler.op(Opcode.JRZ).address(address, true);
+        return this;
+    }
+
+    jrnz (address: string): AssemblerHelper {
+        this.assembler.op(Opcode.JRNZ).address(address, true);
+        return this;
+    }
+
+    call (argc: number): AssemblerHelper {
+        this.assembler.op(Opcode.CALL).i32(argc);
+        return this;
+    }
+
+    get and32 (): AssemblerHelper {
+        this.assembler.op(Opcode.AND32);
+        return this;
+    }
+
+    get or32 (): AssemblerHelper {
+        this.assembler.op(Opcode.OR32);
+        return this;
+    }
+
+    get xor32 (): AssemblerHelper {
+        this.assembler.op(Opcode.XOR32);
+        return this;
+    }
+
+    get shl32 (): AssemblerHelper {
+        this.assembler.op(Opcode.SHL32);
+        return this;
+    }
+
+    get shr32 (): AssemblerHelper {
+        this.assembler.op(Opcode.SHR32);
+        return this;
+    }
+
+    get shr32u (): AssemblerHelper {
+        this.assembler.op(Opcode.SHR32U);
+        return this;
+    }
+
+    get eq32 (): AssemblerHelper {
+        this.assembler.op(Opcode.EQ32);
+        return this;
+    }
+
+    get ne32 (): AssemblerHelper {
+        this.assembler.op(Opcode.NE32);
+        return this;
+    }
+
+    get gt32 (): AssemblerHelper {
+        this.assembler.op(Opcode.GT32);
+        return this;
+    }
+
+    get gt32u (): AssemblerHelper {
+        this.assembler.op(Opcode.GT32U);
+        return this;
+    }
+
+    get ge32 (): AssemblerHelper {
+        this.assembler.op(Opcode.GE32);
+        return this;
+    }
+
+    get ge32u (): AssemblerHelper {
+        this.assembler.op(Opcode.GE32U);
+        return this;
+    }
+
+    get not32 (): AssemblerHelper {
+        this.assembler.op(Opcode.NOT32);
+        return this;
+    }
+
+    get bnot32 (): AssemblerHelper {
+        this.assembler.op(Opcode.BNOT32);
+        return this;
+    }
+
+    get neg32 (): AssemblerHelper {
+        this.assembler.op(Opcode.NEG32);
+        return this;
+    }
+
+    get halt (): AssemblerHelper {
+        this.assembler.op(Opcode.HALT);
+        return this;
+    }
+
+    get ret32 (): AssemblerHelper {
+        this.assembler.op(Opcode.RET32);
+        return this;
+    }
+
+    get ret (): AssemblerHelper {
+        this.assembler.op(Opcode.RET);
+        return this;
+    }
+
+    get alloc32 (): AssemblerHelper {
+        this.assembler.op(Opcode.PUSH32_0);
+        return this;
+    }
+
+    load_arg32 (num: number): AssemblerHelper {
+        this.assembler.op(Opcode.LOAD_ARG32).i32(num);
+        return this;
+    }
+
+    label (name: string): AssemblerHelper {
+        this.assembler.resolveLabel(name);
+        return this;
+    }
+
+    get (): Buffer {
+        return this.assembler.getBuffer();
     }
 }
 
