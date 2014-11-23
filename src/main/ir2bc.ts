@@ -296,8 +296,8 @@ export class Assembler {
         return this;
     }
 
-    private address (value: string): Assembler {
-        this.writeAddress(value);
+    private address (value: string, isRelativeAddress: boolean = false): Assembler {
+        this.writeAddress(value, isRelativeAddress);
         return this;
     }
 
@@ -311,6 +311,7 @@ export class Assembler {
 
     private labels: {[key: string]: number} = {};
     private waitingForLabel: {[key: string]: number[]} = {};
+    private waitingForRelativeLabel: {[key: string]: number[]} = {};
 
     private resolveLabel (id: string) {
         var address = this.getCurrentAddress();
@@ -318,17 +319,25 @@ export class Assembler {
         if (this.waitingForLabel.hasOwnProperty(id)) {
             this.waitingForLabel[id].forEach(offset => this.irStreamWritter.writeAddress(address, offset));
         }
+        if (this.waitingForRelativeLabel.hasOwnProperty(id)) {
+            this.waitingForRelativeLabel[id].forEach(offset => this.irStreamWritter.writeAddress(address - offset, offset));
+        }
     }
 
-    private writeAddress (id: string) {
+    private writeAddress (id: string, isRelativeAddress: boolean = false) {
+        var obj = isRelativeAddress ? this.waitingForRelativeLabel : this.waitingForLabel;
         if (this.labels.hasOwnProperty(String(id))) {
-            this.irStreamWritter.appendAddress(this.labels[id]);
-            delete this.waitingForLabel[id];
-        } else {
-            if (!this.waitingForLabel.hasOwnProperty(id)) {
-                this.waitingForLabel[id] = [];
+            if (isRelativeAddress) {
+                this.irStreamWritter.appendAddress(this.labels[id] - this.irStreamWritter.getCurrentOffset());
+            } else {
+                this.irStreamWritter.appendAddress(this.labels[id]);
             }
-            this.waitingForLabel[id].push(this.irStreamWritter.getCurrentOffset());
+            delete obj[id];
+        } else {
+            if (!obj.hasOwnProperty(id)) {
+                obj[id] = [];
+            }
+            obj[id].push(this.irStreamWritter.getCurrentOffset());
             this.irStreamWritter.appendAddress(0);
         }
     }
