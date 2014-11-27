@@ -1,5 +1,22 @@
 import ir2bc = require('./ir2bc');
 
+export class Memory {
+
+    private memory: Buffer = new Buffer(2048);
+
+    set32 (offset: number, value: number) {
+        this.memory.writeInt32BE(value|0, offset * 4);
+    }
+
+    get32 (offset: number) {
+        return this.memory.readInt32BE(offset * 4);
+    }
+
+    get32u (offset: number) {
+        return this.memory.readUInt32BE(offset * 4);
+    }
+}
+
 export class CPU {
 
     debug: boolean = false;
@@ -9,31 +26,23 @@ export class CPU {
     private fp: number = 0;
 
     private bytecode: Buffer;
-    private stack: Buffer = new Buffer(2048);
+    private _memory: Memory = new Memory();
+
+    get memory () {
+        return this._memory;
+    }
 
     //region Helpers
-    private set32 (offset: number, value: number) {
-        this.stack.writeInt32BE(value|0, offset * 4);
-    }
-
-    private get32 (offset: number) {
-        return this.stack.readInt32BE(offset * 4);
-    }
-
-    private get32u (offset: number) {
-        return this.stack.readUInt32BE(offset * 4);
-    }
-
     private pop32 (): number {
-        return this.get32(this.sp--);
+        return this._memory.get32(this.sp--);
     }
 
     private pop32u (): number {
-        return this.get32u(this.sp--);
+        return this._memory.get32u(this.sp--);
     }
 
     private push32 (value: number) {
-        this.set32(++this.sp, value);
+        this._memory.set32(++this.sp, value);
     }
 
     private readOpcode (): number {
@@ -59,16 +68,16 @@ export class CPU {
         for (var i = 0; i <= this.sp; i++) {
             offsets.push(i);
         }
-        console.log(offsets.map(offset => this.get32(offset)));
+        console.log(offsets.map(offset => this._memory.get32(offset)));
     }
     //endregion
 
     getResult (): number {
-        return this.get32(this.sp);
+        return this._memory.get32(this.sp);
     }
 
     getResulti32u (): number {
-        return this.get32u(this.sp);
+        return this._memory.get32u(this.sp);
     }
 
     run (bc: Buffer) {
@@ -209,7 +218,7 @@ export class CPU {
         if (this.debug) {
             console.log('Offset = %s', offset);
         }
-        this.push32(this.get32(this.fp + offset));
+        this.push32(this._memory.get32(this.fp + offset));
     }
 
     private runPush32_0 () {
@@ -221,7 +230,7 @@ export class CPU {
         if (this.debug) {
             console.log('Offset = %s', offset);
         }
-        this.set32(this.fp + offset, this.pop32());
+        this._memory.set32(this.fp + offset, this.pop32());
     }
 
     private runConst32 () {
@@ -465,7 +474,7 @@ export class CPU {
         if (this.debug) {
             console.log('Offset = %s', offset);
         }
-        this.push32(this.get32(this.fp - offset - 3));
+        this.push32(this._memory.get32(this.fp - offset - 3));
     }
     //endregion
 }
