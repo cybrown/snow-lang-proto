@@ -60,6 +60,35 @@ export class Jump extends TerminalIrNode {
     ) {
         super();
     }
+
+    get destination () {
+        return this._destination;
+    }
+}
+
+export class ConditionalJump extends TerminalIrNode {
+
+    constructor (
+        private _destinationTrue: BasicBlock,
+        private _destinationFalse: BasicBlock
+    ) {
+        super();
+    }
+
+    get destinationTrue () {
+        return this._destinationTrue;
+    }
+
+    get destinationFalse () {
+        return this._destinationFalse;
+    }
+}
+
+export class ReturnVoid extends TerminalIrNode {
+
+    constructor () {
+        super();
+    }
 }
 
 export class ReturnValue extends TerminalIrNode {
