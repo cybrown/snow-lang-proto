@@ -62,7 +62,7 @@ export class Jump extends TerminalIrNode {
     }
 }
 
-export class Return extends TerminalIrNode {
+export class ReturnValue extends TerminalIrNode {
 
     constructor (
         private _value: ValueIrNode

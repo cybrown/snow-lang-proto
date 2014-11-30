@@ -54,7 +54,7 @@ describe('IR to Bytecode translator', () => {
 
     it('Func', () => {
         var irAdd = new ir.Add(new ir.IntegerConstant(1), new ir.IntegerConstant(2));
-        var irRet = new ir.Return(new ir.IntegerConstant(1));
+        var irRet = new ir.ReturnValue(new ir.IntegerConstant(1));
         var block = new ir.BasicBlock(null, [irAdd], irRet);
         var irFunc = new ir.Func(null, [block], new types.Func([], types.Integer.INT32));
         irTranslator.translateFunc(irFunc);
@@ -69,9 +69,9 @@ describe('IR to Bytecode translator', () => {
         assert.equal(buffer.readUInt8(16), ir2bc.Opcode.RET32);
     });
 
-    it('Return', () => {
-        var irRet = new ir.Return(new ir.IntegerConstant(1));
-        irTranslator.translateReturn(irRet);
+    it('ReturnValue', () => {
+        var irRet = new ir.ReturnValue(new ir.IntegerConstant(1));
+        irTranslator.translateReturnValue(irRet);
         var buffer = irTranslator.toBuffer();
         assert.equal(buffer.readUInt8(0), ir2bc.Opcode.CONST32);
         assert.equal(buffer.readInt32BE(1), 1);
@@ -80,7 +80,7 @@ describe('IR to Bytecode translator', () => {
 
     it('BasicBlock', () => {
         var irAdd = new ir.Add(new ir.IntegerConstant(1), new ir.IntegerConstant(2));
-        var irRet = new ir.Return(new ir.IntegerConstant(1));
+        var irRet = new ir.ReturnValue(new ir.IntegerConstant(1));
         var block = new ir.BasicBlock(null, [irAdd], irRet);
         irTranslator.translateBasicBlock(block);
         var buffer = irTranslator.toBuffer();

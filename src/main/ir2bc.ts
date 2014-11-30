@@ -447,8 +447,8 @@ export class IrTranslator {
             return this.translateIntegerConstant(<ir.IntegerConstant> node);
         } else if (node instanceof ir.Add) {
             return this.translateAdd(<ir.Add> node);
-        } else if (node instanceof ir.Return) {
-            return this.translateReturn(<ir.Return> node);
+        } else if (node instanceof ir.ReturnValue) {
+            return this.translateReturnValue(<ir.ReturnValue> node);
         } else if (node instanceof ir.BasicBlock) {
             return this.translateBasicBlock(<ir.BasicBlock> node);
         } else {
@@ -473,7 +473,7 @@ export class IrTranslator {
         this.irStreamWritter.appendOpcode(Opcode.SUB32);
     }
 
-    translateReturn (node: ir.Return) {
+    translateReturnValue (node: ir.ReturnValue) {
         this.translate(node.value);
         this.irStreamWritter.appendOpcode(Opcode.RET32);
     }
