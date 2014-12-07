@@ -32,7 +32,6 @@ export class Func extends IrNode {
 
     get type () { return this._type; }
     get blocks () { return this._blocks; }
-    get type () { return this._type; }
     get name () { return this._name; }
     get argsName () { return this._argsName; }
 }
@@ -113,7 +112,7 @@ export class ReturnValue extends TerminalIrNode {
 //region ValueIrNode
 export class ValueIrNode extends IrNode {
 
-    private _type: types.Type;
+    public _type: types.Type;
 
     constructor () {
         super();
@@ -137,15 +136,12 @@ export class Call extends ValueIrNode {
 
 export class IntegerConstant extends ValueIrNode {
 
-    private _type: types.Integer;
-
     constructor (private _value: number) {
         super();
         this._type = types.Integer.INT32;
     }
 
     get value () { return this._value; }
-    get type (): types.Integer { return this._type; }
 }
 
 export class Add extends ValueIrNode {

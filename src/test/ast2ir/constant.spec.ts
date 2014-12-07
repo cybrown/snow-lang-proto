@@ -14,13 +14,13 @@ describe('Ast to Constant', () => {
 
     it('1', () => {
         var constantAstNode = new ast.LiteralExpression('1');
-        var constantIrNode = translator.translateLiteralExpression(constantAstNode);
+        var constantIrNode = <ir.IntegerConstant> translator.translateLiteralExpression(constantAstNode);
         assert.equal(1, constantIrNode.value);
     });
 
     it('42', () => {
         var constantAstNode = new ast.LiteralExpression('42');
-        var constantIrNode = translator.translateLiteralExpression(constantAstNode);
+        var constantIrNode = <ir.IntegerConstant> translator.translateLiteralExpression(constantAstNode);
         assert.equal(42, constantIrNode.value);
     });
 });

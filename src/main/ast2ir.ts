@@ -3,7 +3,7 @@ import ir = require('./ir');
 
 export class AstTranslator {
 
-    public translate (node: nodes.AstNode) {
+    public translate (node: nodes.AstNode): ir.IrNode {
         if (node instanceof nodes.LiteralExpression) {
             return this.translateLiteralExpression(<nodes.LiteralExpression> node);
         } else if (node instanceof nodes.BuiltinExpression) {
@@ -13,7 +13,7 @@ export class AstTranslator {
         }
     }
 
-    public translateLiteralExpression (node: nodes.LiteralExpression) {
+    public translateLiteralExpression (node: nodes.LiteralExpression): ir.IrNode {
         var irnode = new ir.IntegerConstant(Number(node.raw));
         return irnode;
     }
