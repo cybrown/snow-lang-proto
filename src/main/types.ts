@@ -85,7 +85,7 @@ export class Tuple extends Type {
     }
 
     serialize () {
-        return '(' + this._types.map(type => type.serialize()).join(',') + ')';
+        return '(' + (<Type[]> this._types).map(type => type.serialize()).join(',') + ')';
     }
 }
 
@@ -99,8 +99,11 @@ export class Func extends Type {
     }
 
     serialize () {
-        return 'F(' + this._args.map(type => type.serialize()).join(',') + ')=>' + this._returnType.serialize();
+        return 'F(' + (<Type[]> this._args).map(type => type.serialize()).join(',') + ')=>' + this._returnType.serialize();
     }
+
+    get argumentsType (): Type[] { return this._args; }
+    get returnType (): Type { return this._returnType; }
 }
 
 export class Structure extends Type {
