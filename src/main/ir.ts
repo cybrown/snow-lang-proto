@@ -5,11 +5,13 @@ export class IrNode {
 
     static currentIrNodeId = 1;
 
-    public id: number;
+    public _id: number;
 
     constructor () {
-        this.id = IrNode.currentIrNodeId++;
+        this._id = IrNode.currentIrNodeId++;
     }
+
+    get id () { return this._id; }
 }
 
 export class Module {
@@ -28,6 +30,7 @@ export class Func extends IrNode {
 
     get type () { return this._type; }
     get blocks () { return this._blocks; }
+    get type () { return this._type; }
 }
 
 export class BasicBlock extends IrNode {
@@ -126,11 +129,15 @@ export class Call extends ValueIrNode {
 
 export class IntegerConstant extends ValueIrNode {
 
+    private _type: types.Integer;
+
     constructor (private _value: number) {
         super();
+        this._type = types.Integer.INT32;
     }
 
     get value () { return this._value; }
+    get type (): types.Integer { return this._type; }
 }
 
 export class Add extends ValueIrNode {

@@ -14,6 +14,10 @@ export class Void extends Type {
         return 'V';
     }
 
+    equals (): boolean {
+        return false;
+    }
+
     static instance = new Void();
 }
 
@@ -25,6 +29,22 @@ export class Integer extends Type {
 
     serialize () {
         return (this._signed ? 'I' : 'U') + this._bits;
+    }
+
+    get bits () { return this._bits; }
+
+    equals (type: Type): boolean {
+        if (!(type instanceof Integer)) {
+            return false;
+        }
+        var itype = <Integer> type;
+        if (itype._bits != this._bits) {
+            return false;
+        }
+        if (itype._signed != this._signed) {
+            return false;
+        }
+        return true;
     }
 
     static INT32 = new Integer(32, true);
