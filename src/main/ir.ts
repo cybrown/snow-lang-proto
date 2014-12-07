@@ -23,7 +23,9 @@ export class Func extends IrNode {
     constructor (
         private _module: Module,
         private _blocks: BasicBlock[],
-        private _type: types.Func
+        private _type: types.Func,
+        private _name: string = null,
+        private _argsName: string[] = null
     ) {
         super();
     }
@@ -31,6 +33,8 @@ export class Func extends IrNode {
     get type () { return this._type; }
     get blocks () { return this._blocks; }
     get type () { return this._type; }
+    get name () { return this._name; }
+    get argsName () { return this._argsName; }
 }
 
 export class BasicBlock extends IrNode {
@@ -109,9 +113,13 @@ export class ReturnValue extends TerminalIrNode {
 //region ValueIrNode
 export class ValueIrNode extends IrNode {
 
+    private _type: types.Type;
+
     constructor () {
         super();
     }
+
+    get type () { return this._type; }
 }
 
 export class Call extends ValueIrNode {
