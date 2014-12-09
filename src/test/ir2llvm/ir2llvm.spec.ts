@@ -16,8 +16,7 @@ describe('IR to LLVM translator', () => {
         var irIntegerConstant = new ir.IntegerConstant(42);
         irTranslator.translate(irIntegerConstant);
         var result = irTranslator.get();
-        assert.equal(result, '\n' +
-        '  %node.' + irIntegerConstant.id + ' = i32 42');
+        assert.equal(result, '');
     });
 
     describe('Return', () => {
@@ -28,8 +27,7 @@ describe('IR to LLVM translator', () => {
             irTranslator.translate(irRet);
             var result = irTranslator.get();
             assert.equal(result, '\n' +
-            '  %node.' + integerConstant42.id + ' = i32 42\n' +
-            '  ret i32 %node.' + integerConstant42.id);
+            '  ret i32 42');
         });
     });
 
@@ -60,9 +58,7 @@ describe('IR to LLVM translator', () => {
             irTranslator.translate(irFunc);
             var result = irTranslator.get();
             assert.equal(result, 'define i32 @funcName() {\n' +
-            '  %node.' + integerConstant13.id + ' = i32 13\n' +
-            '  %node.' + integerConstant42.id + ' = i32 42\n' +
-            '  ret i32 %node.' + integerConstant42.id + '\n' +
+            '  ret i32 42\n' +
             '}');
         });
 
@@ -88,10 +84,7 @@ describe('IR to LLVM translator', () => {
             irTranslator.translate(irBasicBlock);
             var result = irTranslator.get();
             assert.equal(result, '\n' +
-            '  %node.' + integerConstant13.id + ' = i32 13\n' +
-            '  %node.' + integerConstant7.id + ' = i32 7\n' +
-            '  %node.' + integerConstant42.id + ' = i32 42\n' +
-            '  ret i32 %node.' + integerConstant42.id);
+            '  ret i32 42');
         });
     });
 });
