@@ -15,8 +15,10 @@ export class Ir2llvm {
             this.translateBasicBlock(<ir.BasicBlock> node);
         } else if (node instanceof ir.ReturnValue) {
             this.translateReturnValue(<ir.ReturnValue> node);
+        } else if (node instanceof ir.Module) {
+            this.translateModule(<ir.Module> node);
         } else {
-            throw new Error('Unknown node type');
+            throw new Error('Unknown node type: ' + Object.getPrototypeOf(node).constructor.name);
         }
     }
 
@@ -24,8 +26,12 @@ export class Ir2llvm {
         return this._result;
     }
 
+    private translateModule (node: ir.Module): void {
+        node.funcs.forEach(func => this.translateFunc(func));
+    }
+
     private translateIntegerConstant (node: ir.IntegerConstant): void {
-        this._result += '\n  ' + this.inline(node) + ' = ' + this._typeTranslator.translate(node.type) + ' ' + node.value;
+        //this._result += '\n  ' + this.inline(node) + ' = ' + this._typeTranslator.translate(node.type) + ' ' + node.value;
     }
 
     private translateFunc (node: ir.Func): void {
@@ -56,7 +62,11 @@ export class Ir2llvm {
     }
 
     private inline(node: ir.IrNode): string {
-        return '%node.' + node.id;
+        if (node instanceof ir.IntegerConstant) {
+            return String((<ir.IntegerConstant> node).value);
+        } else {
+            throw new Error('Unknown type for inlining: ' + Object.getPrototypeOf(node).constructor.name);
+        }
     }
 }
 

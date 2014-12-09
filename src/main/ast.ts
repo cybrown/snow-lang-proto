@@ -76,6 +76,16 @@ export class ExpressionStatement extends Statement {
 
     get expression () { return this._expression; }
 }
+
+export class ReturnStatement extends Statement {
+
+    constructor (private _expression: Expression, loc?: SourceLocation) {
+        super(loc);
+    }
+
+    get expression () { return this._expression; }
+    get hasExpression ():boolean { return !!this._expression; }
+}
 //endregion
 
 //region Expressions

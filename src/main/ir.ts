@@ -14,8 +14,8 @@ export class IrNode {
     get id () { return this._id; }
 }
 
-export class Module {
-
+export class Module extends IrNode {
+    funcs: Func[];
 }
 
 export class Func extends IrNode {
