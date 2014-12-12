@@ -75,10 +75,15 @@ export class Jump extends TerminalIrNode {
 export class ConditionalJump extends TerminalIrNode {
 
     constructor (
+        private _condition: ValueIrNode,
         private _destinationTrue: BasicBlock,
         private _destinationFalse: BasicBlock
     ) {
         super();
+    }
+
+    get condition () {
+        return this._condition;
     }
 
     get destinationTrue () {
@@ -119,6 +124,7 @@ export class ValueIrNode extends IrNode {
     }
 
     get type () { return this._type; }
+    set type (value: types.Type) { this._type = value; }
 }
 
 export class Call extends ValueIrNode {
@@ -147,8 +153,8 @@ export class IntegerConstant extends ValueIrNode {
 export class Add extends ValueIrNode {
 
     constructor (
-        private _left: IrNode,
-        private _right: IrNode
+        private _left: ValueIrNode,
+        private _right: ValueIrNode
         ) {
         super();
     }

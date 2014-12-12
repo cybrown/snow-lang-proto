@@ -17,6 +17,8 @@ export class Ir2llvm {
             this.translateReturnValue(<ir.ReturnValue> node);
         } else if (node instanceof ir.Module) {
             this.translateModule(<ir.Module> node);
+        } else if (node instanceof ir.Add) {
+            this.translateAdd(<ir.Add> node);
         } else {
             throw new Error('Unknown node type: ' + Object.getPrototypeOf(node).constructor.name);
         }
@@ -24,6 +26,14 @@ export class Ir2llvm {
 
     get (): string {
         return this._result;
+    }
+
+    private translateAdd (node: ir.Add): void {
+        this.translate(node.left);
+        this.translate(node.right);
+        var left = this.inline(node.left);
+        var right = this.inline(node.right);
+        this._result += '\n  %node.' + node.id + ' = add i32 ' + left + ', ' + right;
     }
 
     private translateModule (node: ir.Module): void {
@@ -65,7 +75,8 @@ export class Ir2llvm {
         if (node instanceof ir.IntegerConstant) {
             return String((<ir.IntegerConstant> node).value);
         } else {
-            throw new Error('Unknown type for inlining: ' + Object.getPrototypeOf(node).constructor.name);
+            return '%node.' + node.id;
+            //throw new Error('Unknown type for inlining: ' + Object.getPrototypeOf(node).constructor.name);
         }
     }
 }
@@ -76,7 +87,7 @@ export class IrType2llvm {
         if (type instanceof types.Integer) {
             return this.translateTypeInteger(<types.Integer> type);
         } else {
-            throw new Error('Unknown type');
+            throw new Error('Unknown type: ' + type.serialize());
         }
     }
 
